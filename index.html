@@ -259,6 +259,72 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
   .viewer .hint{bottom:18px}
 }
 
+/* ---------- scroll progress + reveal ---------- */
+.progress{position:fixed;left:0;top:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--gold),var(--gold-l));z-index:60;pointer-events:none}
+.motion [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0ms)}
+.motion [data-reveal].in{opacity:1;transform:none}
+.motion .section h3[data-reveal]{transform:translateX(-24px)}
+.motion .section h3[data-reveal].in{transform:none}
+.motion .hero .copy > *{opacity:0;transform:translateY(22px);animation:heroIn .9s cubic-bezier(.2,.7,.2,1) forwards}
+.motion .hero .copy > :nth-child(2){animation-delay:.12s}.motion .hero .copy > :nth-child(3){animation-delay:.24s}
+.motion .hero .copy > :nth-child(4){animation-delay:.36s}.motion .hero .copy > :nth-child(5){animation-delay:.48s}
+.motion .hero .stage{animation:stageIn 1.2s .2s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes heroIn{to{opacity:1;transform:none}}
+@keyframes stageIn{from{opacity:0;transform:scale(.92)}}
+.hero .leaves,.hero .stage{will-change:transform}
+
+/* ---------- story (scroll-driven chapters) ---------- */
+.story{position:relative;background:var(--jungle);color:var(--cream);isolation:isolate}
+.story::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 70% 40%,rgba(201,160,99,.14),transparent 55%)}
+.st-stage{position:sticky;top:var(--hdr);height:calc(100svh - var(--hdr));overflow:hidden;pointer-events:none}
+.st-stage .st-art{position:absolute;right:4%;top:50%;width:min(56vw,calc(100svh - var(--hdr) - 40px));aspect-ratio:1;transform:translateY(-50%)}
+.st-disc{position:absolute;inset:7%;border-radius:50%;background:radial-gradient(closest-side,#f6f0e6 0%,#efe5d5 64%,rgba(239,229,213,0) 100%);transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.st-ring{position:absolute;inset:2%;border-radius:50%;border:1px solid rgba(227,197,143,.3)}
+.st-art model-viewer{position:absolute;inset:0;width:100%;height:100%;--poster-color:transparent;background:transparent}
+.st-poster{position:absolute;inset:9%;width:82%;height:82%;object-fit:contain;opacity:0;transition:opacity .45s ease;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18))}
+.st-poster.show{opacity:1}
+.st-big{position:absolute;left:4%;bottom:-.12em;font-family:var(--serif);font-size:clamp(120px,22vw,320px);line-height:1;color:rgba(243,236,225,.05);font-style:italic;letter-spacing:-.02em;white-space:nowrap;transition:opacity .6s}
+.st-rail{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:grid;gap:14px;pointer-events:auto}
+.st-rail button{width:10px;height:10px;border-radius:50%;border:1px solid rgba(227,197,143,.6);background:transparent;padding:0;transition:all .3s}
+.st-rail button.on{background:var(--gold);transform:scale(1.4)}
+.st-skip{position:absolute;right:24px;bottom:22px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(243,236,225,.7);text-decoration:none;pointer-events:auto;border-bottom:1px solid rgba(227,197,143,.4);padding-bottom:3px}
+.st-steps{position:relative;margin-top:calc(-100svh + var(--hdr));z-index:2;pointer-events:none}
+.st-card{pointer-events:auto}
+.st-step{min-height:calc(100svh - var(--hdr));display:flex;align-items:center;padding:12vh 0}
+.st-step:first-child{min-height:calc(100svh - var(--hdr))}
+.st-card{width:min(440px,40vw);margin-left:max(20px,calc((100vw - 1180px)/2));opacity:.12;transform:translateY(40px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.st-step.on .st-card{opacity:1;transform:none}
+.st-num{font-family:var(--serif);font-size:20px;color:var(--gold-l);margin-bottom:18px;display:flex;align-items:center;gap:12px}
+.st-num::after{content:"";height:1px;width:60px;background:rgba(227,197,143,.5)}
+.st-num span{opacity:.55}
+.st-card .eyebrow{color:var(--gold-l)}
+.st-card h3{font-family:var(--serif);font-weight:400;font-size:clamp(40px,4.6vw,68px);line-height:1;margin:12px 0 18px}
+.st-card h3 em{color:var(--gold-l)}
+.st-card p{font-size:17px;font-weight:300;color:rgba(243,236,225,.84);margin:0 0 18px;line-height:1.6}
+.st-card .st-story{font-family:var(--serif);font-size:24px;line-height:1.35;color:var(--cream);font-weight:400}
+.st-terms{display:grid;gap:10px;margin:4px 0 22px;padding-left:16px;border-left:1px solid rgba(227,197,143,.35)}
+.st-terms div{font-size:14px;color:rgba(243,236,225,.72);font-weight:300}
+.st-terms b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:18px;color:var(--gold-l);margin-right:6px}
+.st-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.st-cta .price{color:var(--gold-l);font-size:26px}
+.st-heat{display:inline-flex;align-items:center;gap:4px;color:#e7836a;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.st-heat svg{width:15px;height:15px}
+@media (max-width:860px){
+  .st-stage .st-art{left:50%;right:auto;top:6%;width:min(84vw,52svh);transform:translateX(-50%)}
+  .st-rail{display:none!important}
+  .st-card{opacity:0}
+  .st-skip{bottom:auto;top:14px;right:16px}
+  .st-big{display:none}
+  .st-step{align-items:flex-end;padding:0 0 6svh;min-height:105svh}
+  .st-step:first-child{min-height:100svh}
+  .st-card{width:auto;margin:0 14px;padding:22px 20px;border-radius:20px;background:rgba(17,36,23,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(227,197,143,.18)}
+  .st-card h3{font-size:38px;margin:8px 0 12px}
+  .st-card .st-story{font-size:19px}
+  .st-card p{font-size:15px;margin-bottom:12px}
+  .st-terms{margin-bottom:14px}
+  .st-terms div:nth-child(n+2){display:none}
+}
+
 /* ---------- toast ---------- */
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:200;background:var(--ink);color:var(--cream);padding:12px 18px;border-radius:12px;font-size:14px;transition:all .3s;pointer-events:none;max-width:calc(100% - 40px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -357,6 +423,7 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
 </head>
 <body>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
 <header class="hdr">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Wayan New York — home"><b>WAYAN</b><small data-bind="location">New York</small></a>
@@ -402,7 +469,7 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
         <h1 id="heroTitle">See every dish <em>on&nbsp;your table</em> before you order.</h1>
         <p class="lede" data-bind="tagline">Indonesian cuisine with a modern French flair. Spin, zoom and place our signature plates in augmented reality — true to size.</p>
         <div class="ctas">
-          <a class="btn btn-gold" href="#feat">Explore 3D dishes</a>
+          <a class="btn btn-gold" href="#story" id="heroExplore">Explore 3D dishes</a>
           <a class="btn btn-ghost" href="#menu">Full menu</a>
         </div>
         <div class="meta">
@@ -415,6 +482,20 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
         <div class="chip"><strong id="heroName">Lobster Noodles</strong><span class="p" id="heroPrice">38</span><button class="btn btn-gold btn-sm" id="heroOpen">View in AR</button></div>
       </div>
     </div>
+  </section>
+
+  <section class="story" id="story" aria-label="The story behind our dishes" hidden>
+    <div class="st-stage" aria-hidden="true">
+      <div class="st-big" id="stBig"></div>
+      <div class="st-art">
+        <div class="st-disc" id="stDisc"></div><div class="st-ring"></div>
+        <model-viewer id="stMv" alt="" interaction-prompt="none" camera-orbit="0deg 62deg 110%" interpolation-decay="90" shadow-intensity=".55" shadow-softness="1" environment-image="neutral" exposure="1.05" loading="lazy"><div slot="progress-bar"></div></model-viewer>
+        <img class="st-poster" id="stPoster" alt="">
+      </div>
+      <div class="st-rail" id="stRail"></div>
+      <a class="st-skip" href="#menu">Skip to menu ↓</a>
+    </div>
+    <div class="st-steps" id="stSteps"></div>
   </section>
 
   <section class="feat" id="feat" aria-labelledby="featTitle">
@@ -639,7 +720,10 @@ const SEED = {
     address: '20 Spring St, New York, NY 10012', phone: '(917) 261-4388',
     reserveUrl: 'https://www.wayan-restaurants.com/new-york',
     hours: 'Lunch|Mon–Fri 12:00–3:30pm\nBrunch|Sat–Sun 11:30am–3:30pm\nDinner|Mon–Wed 5:30–10pm\n|Thu 5:30–11pm\n|Fri–Sat 5pm–12am\n|Sun 5–10pm',
-    footnote: 'Menu changes with the seasons · Please tell your server about any allergies · 3D models are illustrative'
+    footnote: 'Menu changes with the seasons · Please tell your server about any allergies · 3D models are illustrative',
+    storyEyebrow: 'Wayan · Balinese for “firstborn”',
+    storyTitle: 'From Jakarta to Spring Street',
+    storyText: 'The first restaurant of chef Cédric Vongerichten and Ochi Vongerichten brings the flavors of Ochi’s hometown, Jakarta, to Nolita — Indonesian cooking with a modern French flair. Scroll to meet the dishes.'
   },
   glossary: GLOSSARY,
   tabs: [
@@ -852,7 +936,7 @@ async function renderAll() {
   bindRestaurant();
   // resolve all posters up-front (small)
   await Promise.all(MENU.items.filter(i => i.model?.poster).map(i => urlFor(i.model.poster)));
-  renderStrip(); renderTabs(); renderMenu(); renderHero();
+  renderStrip(); renderStory(); renderTabs(); renderMenu(); renderHero(); observeReveals();
   const n = new Set(with3d().map(i => i.model.src)).size; $('#count3d').textContent = `${n} dish${n === 1 ? '' : 'es'} in 3D`;
 }
 
@@ -893,6 +977,7 @@ function renderMenu() {
       <h3 id="h-${esc(s.id)}">${esc(s.title)}</h3>${s.note ? `<p class="snote">${esc(s.note)}</p>` : ''}
       <div class="items">${s.items.map(itemHTML).join('')}</div>
     </section>`).join('') : `<p class="empty">No dishes here yet.</p>`;
+  observeReveals();
 }
 
 const CHILI = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.2 13.6c1.4-.4 2.6-1.6 3.4-3.2.9-1.8 2.6-2.9 4.6-2.9 2.6 0 4.6 2 4.6 4.5 0 3.9-4.6 8.2-11.6 8.6-1.6.1-2.4-.7-2.3-1.6.2-1.4.8-4.9 1.3-5.4z"/><path fill="none" stroke="#3f7a3a" stroke-width="1.8" stroke-linecap="round" d="M14.6 7.6c.2-1.8 1.2-3.2 3-3.8M15.5 8.2c1.4-.6 2.6-.5 3.6.2"/></svg>';
@@ -938,6 +1023,113 @@ async function renderHero() {
   mv.src = await urlFor(it.model.src);
   $('#heroName').textContent = it.name; $('#heroPrice').textContent = fmtPrice(it.price);
   $('#heroOpen').dataset.open = it.id;
+}
+
+/* ---------- scroll storytelling ---------- */
+const MOTION = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (MOTION) document.documentElement.classList.add('motion');
+const ST = { chapters: [], steps: [], active: -1, dish: null };
+function storyDishes() {
+  const list = with3d(); const feat = list.filter(i => i.featured);
+  const seen = new Set();
+  return (feat.length ? feat : list).filter(i => !seen.has(i.model.src) && seen.add(i.model.src));
+}
+function dishTitle(it) {
+  const sec = secOf(it.tab, it.section);
+  return /satay/i.test(sec?.title || '') && !/satay/i.test(it.name) ? it.name + ' Satay' : it.name;
+}
+function renderStory() {
+  const dishes = storyDishes(), R = MENU.restaurant, S = SEED.restaurant;
+  const on = dishes.length > 0;
+  $('#story').hidden = !on; $('#feat').hidden = on || !with3d().length;
+  $('#heroExplore').href = on ? '#story' : '#feat';
+  if (!on) { ST.steps = []; return; }
+  const n = dishes.length, pad = x => String(x).padStart(2, '0');
+  const intro = { kind: 'intro', dish: dishes[0] };
+  const outro = { kind: 'outro', dish: dishes[n - 1] };
+  ST.chapters = [intro, ...dishes.map((d, i) => ({ kind: 'dish', dish: d, i })), outro];
+  $('#stSteps').innerHTML = ST.chapters.map((c, k) => {
+    if (c.kind === 'intro') return `<article class="st-step" data-k="${k}"><div class="st-card">
+      <div class="eyebrow">${esc(R.storyEyebrow ?? S.storyEyebrow)}</div>
+      <h3>${esc(R.storyTitle ?? S.storyTitle)}</h3>
+      <p>${esc(R.storyText ?? S.storyText)}</p>
+      <div class="st-num" style="margin:24px 0 0">${n} dishes in 3D <span>↓</span></div></div></article>`;
+    if (c.kind === 'outro') return `<article class="st-step" data-k="${k}"><div class="st-card">
+      <div class="eyebrow">Your table is waiting</div>
+      <h3>Now, <em>choose yours.</em></h3>
+      <p>Every plate on the menu, with what’s in it — and the ones you can see on your table first.</p>
+      <div class="st-cta"><a class="btn btn-gold" href="#menu">See the full menu</a><a class="btn btn-ghost" data-link="reserve" href="${esc(R.reserveUrl || '#')}" target="_blank" rel="noopener">Reserve</a></div></div></article>`;
+    const it = c.dish, sec = secOf(it.tab, it.section), terms = glossaryFor(it).filter(g => !/^satay$/i.test(g.t)).slice(0, 2);
+    return `<article class="st-step" data-k="${k}"><div class="st-card">
+      <div class="st-num">${pad(c.i + 1)} <span>/ ${pad(n)}</span></div>
+      <div class="eyebrow">${esc([tabOf(it.tab)?.label, sec?.title].filter(Boolean).join(' · '))}</div>
+      <h3>${esc(dishTitle(it))}</h3>
+      ${it.story ? `<p class="st-story">${esc(it.story)}</p>` : `<p>${esc(it.desc)}</p>`}
+      ${terms.length ? `<div class="st-terms">${terms.map(g => `<div><b>${esc(g.t)}</b>${esc(g.d)}</div>`).join('')}</div>` : ''}
+      <div class="st-cta"><button class="btn btn-gold" data-open="${esc(it.id)}">View on your table</button><span class="price">${esc(fmtPrice(it.price))}</span>${it.heat ? `<span class="st-heat">${CHILI.repeat(it.heat)} ${HEAT[it.heat]}</span>` : ''}</div>
+    </div></article>`;
+  }).join('');
+  $('#stRail').innerHTML = dishes.map((d, i) => `<button aria-label="${esc(dishTitle(d))}" data-k="${i + 1}"></button>`).join('');
+  ST.steps = $$('.st-step'); ST.active = -1; ST.dish = null;
+  onScroll();
+}
+async function stSetDish(it) {
+  if (ST.dish === it.id) return; ST.dish = it.id;
+  const smv = $('#stMv'), poster = $('#stPoster'), pu = URLS.get(it.model.poster) || '';
+  if (pu) { poster.src = pu; poster.classList.add('show'); }
+  $('#stBig').textContent = it.name;
+  const src = await urlFor(it.model.src);
+  if (ST.dish !== it.id) return;
+  smv.alt = `3D model of ${it.name}`;
+  if (smv.src === src || smv.getAttribute('src') === src) { poster.classList.remove('show'); return; }
+  smv.src = src;
+}
+$('#stMv').addEventListener('load', () => setTimeout(() => $('#stPoster').classList.remove('show'), 120));
+$('#stRail').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) ST.steps[+b.dataset.k]?.scrollIntoView({ behavior: MOTION ? 'smooth' : 'auto', block: 'center' }); });
+
+let ticking = false;
+function onScroll() {
+  if (ticking) return; ticking = true;
+  requestAnimationFrame(() => {
+    ticking = false;
+    const y = scrollY, vh = innerHeight, docH = document.documentElement.scrollHeight - vh;
+    $('#progress').style.transform = `scaleX(${docH > 0 ? Math.min(1, y / docH) : 0})`;
+    if (MOTION) {
+      const hero = $('.hero'); if (y < hero.offsetHeight + 200) {
+        $('.hero .leaves').style.transform = `translateY(${y * .25}px)`;
+        $('#stage').style.transform = `translateY(${y * -.08}px) scale(${1 - Math.min(y / 4000, .06)})`;
+      }
+    }
+    if (!ST.steps.length || $('#story').hidden) return;
+    // active chapter = the one crossing the middle of the viewport
+    const mid = vh * .55; let k = 0, prog = 0;
+    ST.steps.forEach((st, i) => { const r = st.getBoundingClientRect(); if (r.top <= mid) { k = i; prog = Math.min(1, Math.max(0, (mid - r.top) / r.height)); } });
+    if (k !== ST.active) {
+      ST.active = k;
+      ST.steps.forEach((st, i) => st.classList.toggle('on', i === k));
+      $$('#stRail button').forEach(b => b.classList.toggle('on', +b.dataset.k === k));
+      stSetDish(ST.chapters[k].dish);
+    }
+    const c = ST.chapters[k];
+    const smv = $('#stMv');
+    if (MOTION) {
+      const theta = c.kind === 'intro' ? -40 + prog * 40 : c.kind === 'outro' ? 20 + prog * 60 : -50 + prog * 130;
+      const radius = c.kind === 'dish' ? 124 - Math.sin(prog * Math.PI) * 13 : 122;
+      smv.cameraOrbit = `${theta.toFixed(1)}deg ${(66 - prog * 8).toFixed(1)}deg ${radius.toFixed(1)}%`;
+      $('#stDisc').style.transform = `scale(${(.94 + Math.sin(prog * Math.PI) * .08).toFixed(3)})`;
+    } else smv.cameraOrbit = '25deg 62deg 105%';
+  });
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('resize', onScroll);
+
+/* reveal-on-scroll for the rest of the page */
+const revealIO = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } }), { rootMargin: '0px 0px -8% 0px' }) : null;
+function observeReveals() {
+  if (!MOTION || !revealIO) return;
+  const groups = [['.sec-head', 0], ['.card3d', 90], ['.section h3', 0], ['.section .snote', 0], ['.info .wrap > div', 120], ['.tabnote', 0], ['.foot-note', 0]];
+  for (const [sel, step] of groups) $$(sel).forEach((el, i) => { if (el.dataset.reveal != null) return; el.dataset.reveal = ''; el.style.setProperty('--d', (i % 6) * step + 'ms'); revealIO.observe(el); });
+  $$('.items').forEach(list => $$('.item', list).forEach((el, i) => { if (el.dataset.reveal != null) return; el.dataset.reveal = ''; el.style.setProperty('--d', (i % 8) * 55 + 'ms'); revealIO.observe(el); }));
 }
 
 /* ---------- viewer ---------- */
@@ -1343,6 +1535,10 @@ function renderSettings() {
         <div class="f2"><div class="f"><label>Phone</label><input type="text" data-r="phone" value="${esc(R.phone)}"></div><div class="f"><label>Reservation link</label><input type="url" data-r="reserveUrl" value="${esc(R.reserveUrl)}"></div></div>
         <div class="f"><label>Hours (one per line, “Label|Time”)</label><textarea data-r="hours" rows="6">${esc(R.hours)}</textarea></div>
         <div class="f"><label>Menu footnote</label><input type="text" data-r="footnote" value="${esc(R.footnote)}"></div>
+        <div class="f"><label>Story intro — eyebrow</label><input type="text" data-r="storyEyebrow" value="${esc(R.storyEyebrow ?? SEED.restaurant.storyEyebrow)}"></div>
+        <div class="f"><label>Story intro — title</label><input type="text" data-r="storyTitle" value="${esc(R.storyTitle ?? SEED.restaurant.storyTitle)}"></div>
+        <div class="f"><label>Story intro — text</label><textarea data-r="storyText" rows="3">${esc(R.storyText ?? SEED.restaurant.storyText)}</textarea></div>
+        <p class="help">The scrolling story shows every dish marked “Show in Tonight, in 3D” (or all 3D dishes), in menu order.</p>
       </div>
       <div class="card" style="grid-column:1/-1"><h6>Glossary</h6>
         <div class="f"><label>One term per line, “term|explanation”. Terms found in a dish’s name or menu line are explained in its detail view.</label><textarea id="sGloss" rows="10" style="font-family:ui-monospace,monospace;font-size:13px">${esc(A.draft.glossary != null ? A.draft.glossary : GLOSSARY)}</textarea></div>
