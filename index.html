@@ -6,6 +6,25 @@
 <title>Wayan New York — Menu in 3D</title>
 <meta name="description" content="Wayan by Cédric Vongerichten — Indonesian cuisine with a modern French flair. Explore the menu in 3D and place dishes on your table in AR.">
 <meta name="theme-color" content="#17301f">
+<link rel="canonical" href="https://wayan-theta.vercel.app/">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Link previews (WhatsApp, iMessage, Instagram, Facebook, X, Slack…). Image URL must be absolute; update it if you add a custom domain. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wayan New York">
+<meta property="og:title" content="Wayan New York — The menu, in 3D">
+<meta property="og:description" content="Indonesian cuisine with a modern French flair. See every dish on your table in AR, true to size, before you order.">
+<meta property="og:url" content="https://wayan-theta.vercel.app/">
+<meta property="og:image" content="https://wayan-theta.vercel.app/og-image.jpg">
+<meta property="og:image:secure_url" content="https://wayan-theta.vercel.app/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wayan New York — dishes from the menu shown in 3D">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wayan New York — The menu, in 3D">
+<meta name="twitter:description" content="See every dish on your table in AR, true to size, before you order.">
+<meta name="twitter:image" content="https://wayan-theta.vercel.app/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -529,7 +548,7 @@ const SEED = {
     ['dinner','satays','lamb-satay','Lamb','chili kecap manis, pickled peppers',18],
     ['dinner','satays','beef-satay','Beef','padang sauce, lime',22],
     ['dinner','small','spring-rolls','Vegetable Spring Rolls','green chili emulsion, mint',18,{model:'spring-rolls',featured:true}],
-    ['dinner','small','gado-gado','Avocado “Gado Gado”','cucumber, peanut relish, lotus chips, egg',20,{model:'gado-gado',featured:true}],
+    ['dinner','small','gado-gado','Avocado “Gado Gado”','cucumber, peanut relish, lotus chips, egg',20],
     ['dinner','small','tamarind-citrus-salad','Tamarind Citrus Salad','cabbage, asian pear, macadamia nuts',19],
     ['dinner','small','guava-salad','Guava Salad','radicchio, cucumber, rujak vinaigrette',19],
     ['dinner','small','hiramasa-sashimi','Hiramasa Sashimi','ginger turmeric dressing, sambal matah',23],
@@ -540,14 +559,14 @@ const SEED = {
     ['dinner','large','roasted-cauliflower','Roasted Cauliflower','coconut curry, sautéed brussels sprouts, lime',28],
     ['dinner','large','steamed-black-sea-bass','Steamed Black Sea Bass','rainbow chard, chili-calamansi vinaigrette',32],
     ['dinner','large','branzino-ikan-bakar','Grilled Branzino Ikan Bakar','brussels sprout purée, sambal tomat, lime',34],
-    ['dinner','large','lobster-noodles','Lobster Noodles','indo noodle, black pepper butter, thai basil',38,{model:'lobster-noodles',tags:['Signature','Popular'],featured:true}],
+    ['dinner','large','lobster-noodles','Lobster Noodles','indo noodle, black pepper butter, thai basil',38,{tags:['Signature','Popular']}],
     ['dinner','large','chicken-lombok','Charred Chicken Lombok','roasted sweet potato, koji, thai basil',30],
     ['dinner','large','roasted-duck','Roasted Duck','calamansi gulai, asian pear, cashew nuts',39],
     ['dinner','large','crispy-pork-ribs','Crispy Pork Ribs','soy tamarind glaze, sesame seeds, urfa biber',35,{model:'crispy-pork-ribs',featured:true,hero:true}],
     ['dinner','signatures','crispy-black-sea-bass','Crispy Black Sea Bass','market choy urap, sambal tomat',78],
     ['dinner','signatures','beef-tenderloin','Caramelized Beef Tenderloin','spring onion sambal, asparagus, pickled chili',48],
     ['dinner','sides','kerupuk','House-made Kerupuk','sambal terasi, makrut powder',10],
-    ['dinner','sides','corn-fritter','Corn Fritter','kecap manis',14,{model:'corn-fritter',tags:['Popular'],featured:true}],
+    ['dinner','sides','corn-fritter','Corn Fritter','kecap manis',14,{tags:['Popular']}],
     ['dinner','sides','shishito','Shishito Peppers','sweet soy pepper glaze',14],
     ['dinner','sides','layered-cabbage','Layered Cabbage','garlic-ginger sambal, crispy shiitake',16],
     ['dinner','sides','eggplant-balado','Eggplant Balado','chili sauce, roasted tomatoes',16],
@@ -558,11 +577,11 @@ const SEED = {
     ['brunch','brunch','beef-mie-goreng','Beef Mie Goreng','stir fried noodles, fried egg, savoy cabbage, crispy shallots',22],
     ['brunch','brunch','crazy-rice','Crazy Rice','fried egg, short rib, bacon, sausage',22],
     ['brunch','brunch','pandan-french-toast','Pandan French Toast','roasted pineapple, kaya jam',20],
-    ['brunch','brunch','brunch-lobster-noodle','Lobster Noodle','indo noodle, black pepper butter, thai basil',38,{model:'lobster-noodles',tags:['Signature']}],
+    ['brunch','brunch','brunch-lobster-noodle','Lobster Noodle','indo noodle, black pepper butter, thai basil',38,{tags:['Signature']}],
     ['brunch','brunch-cocktails','sambalada','Sambalada','lager, housemade sambal, tomato, tamari, cumin',19],
     ['brunch','brunch-cocktails','kopi','Kopi','reposado tequila, coconut milk, afficionado ‘nihuta’ espresso',17],
     ['dessert','sweets','pandan-custard','Pandan Custard','passion fruit',15,{model:'pandan-custard',tags:['Popular'],featured:true}],
-    ['dessert','sweets','banana-sundae','Banana Sundae','caramelized banana, banana cake, ube ice cream',16,{model:'banana-sundae',featured:true}]
+    ['dessert','sweets','banana-sundae','Banana Sundae','caramelized banana, banana cake, ube ice cream',16]
   ].map(([tab, section, id, name, desc, price, o = {}]) => ({
     id, tab, section, name, desc, price: String(price), extra: o.extra || '', tags: o.tags || [],
     featured: !!o.featured, hero: !!o.hero, available: true,
@@ -721,9 +740,9 @@ async function renderAll() {
   const n = new Set(with3d().map(i => i.model.src)).size; $('#count3d').textContent = `${n} dish${n === 1 ? '' : 'es'} in 3D`;
 }
 
-function posterImg(it, cls = '') {
+function posterImg(it, cls = '', eager = false) {
   const u = it.model?.poster ? URLS.get(it.model.poster) : '';
-  return u ? `<img class="${cls}" src="${u}" alt="" loading="lazy" decoding="async">` : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b8875c" stroke-width="1.2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>`;
+  return u ? `<img class="${cls}" src="${u}" alt="" loading="${eager ? 'eager' : 'lazy'}" decoding="async">` : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b8875c" stroke-width="1.2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>`;
 }
 
 function renderStrip() {
@@ -734,7 +753,7 @@ function renderStrip() {
   $('#feat').hidden = !uniq.length;
   $('#strip').innerHTML = uniq.map(it => `
     <button class="card3d" data-open="${esc(it.id)}" aria-label="View ${esc(it.name)} in 3D">
-      <div class="ph">${posterImg(it)}</div>
+      <div class="ph">${posterImg(it, '', true)}</div>
       <div class="eyebrow" style="color:var(--teak);font-size:10.5px">${esc(secOf(it.tab, it.section)?.title || '')}</div>
       <div class="nm">${esc(it.name)}</div>
       <div class="ds">${esc(it.desc)}</div>

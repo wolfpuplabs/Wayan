@@ -10,7 +10,7 @@ Web menu Wayan (20 Spring St, Nolita) dengan dish 3D yang bisa dilihat di atas m
 
 ```
 index.html            halaman lengkap (menu, viewer 3D/AR, admin)
-models/               6 model contoh (.glb, meshopt) + poster (.webp)
+models/               model 3D dish (.glb, meshopt + tekstur WebP) + poster (.webp)
 vendor/blob-client.js @vercel/blob/client (bundle, hanya dimuat saat admin upload)
 api/                  Vercel Functions
   health.js           status (dipakai halaman untuk pindah ke mode Live)
@@ -46,11 +46,15 @@ Menyimpan menu di `self-host/data/` dan upload di `self-host/uploads/`. Pasang d
 - Target < 5 MB. Kompres:
   `npx @gltf-transform/cli optimize in.glb out.glb --compress meshopt --texture-compress webp --texture-size 2048`
 - Model realistis: scan dish asli pakai Polycam / Luma AI / RealityScan → export GLB.
-- Model bawaan di `models/` adalah ilustrasi low-poly (placeholder).
+- Model di `models/` (Chicken Satay, Vegetable Spring Rolls, Crispy Pork Ribs, Pandan Custard) hasil generate Tripo, sudah diskalakan ke ukuran asli dan dikompres.
 
 ## QR di meja
 
 Link langsung ke dish: `https://<domain>/#dish/<id>` (mis. `#dish/lobster-noodles`). Di desktop, viewer menampilkan QR otomatis.
+
+## Share link
+
+`og-image.jpg` (1200×630) dipakai sebagai thumbnail saat link dibagikan (WhatsApp, iMessage, Instagram, Facebook, X). URL gambarnya absolut (`https://wayan-theta.vercel.app/og-image.jpg`) di `<head>` `index.html` — ganti kalau pakai custom domain. Kalau link sudah pernah dibagikan sebelumnya, preview lama bisa ter-cache; refresh lewat https://developers.facebook.com/tools/debug/ (juga dipakai WhatsApp).
 
 ## Catatan konten
 
