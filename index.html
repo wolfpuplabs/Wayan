@@ -176,6 +176,11 @@ input:checked + .switch::after{transform:translateX(16px)}
 .item .ds .add{font-style:italic;color:var(--teak)}
 .item .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .item .tags span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--leaf);border:1px solid #cfd9c4;border-radius:999px;padding:2px 8px}
+.item.has3d,.item.det{cursor:pointer}
+.item.det:hover .nm{color:var(--teak)}
+.item .heat{display:inline-flex;gap:0;margin-left:8px;vertical-align:1px;color:#c0432a}
+.item .heat svg{width:15px;height:15px}
+.item .cta3d.muted{color:var(--muted);font-weight:500}
 .item .cta3d{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teak);font-weight:600;margin-top:6px;display:inline-flex;gap:6px;align-items:center}
 .item.sold .nm,.item.sold .pr{opacity:.45;text-decoration:line-through}
 .empty{padding:40px 0;color:var(--muted);text-align:center}
@@ -214,6 +219,22 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
 .viewer .ttl{display:flex;flex-direction:column;gap:10px}
 @media (max-width:860px){.viewer .ttl{flex-direction:row;align-items:baseline;justify-content:space-between;gap:16px}}
 .viewer .side .ds{color:var(--muted);font-size:16px;font-weight:300;margin:0}
+.viewer .story{font-family:var(--serif);font-size:21px;line-height:1.35;margin:4px 0 0;color:var(--ink)}
+.viewer .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.viewer .heatpill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;padding:5px 10px;border-radius:999px;background:#f7e6df;color:#9a3b24}
+.viewer .heatpill svg{width:15px;height:15px;margin-right:-3px}
+.viewer .blk{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:8px}
+.viewer .blk h4{margin:0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--teak);font-weight:600}
+.viewer dl{margin:0;display:grid;gap:8px}
+.viewer dt{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--teak-d);line-height:1.1}
+.viewer dd{margin:0;font-size:14px;color:var(--muted);font-weight:300}
+.viewer .alg{display:flex;gap:6px;flex-wrap:wrap}
+.viewer .alg span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff}
+.viewer .fine{font-size:12px;color:var(--muted);margin:0}
+.viewer.no3d .sheet{grid-template-columns:1fr;max-width:640px;height:fit-content;max-height:92vh;top:0;bottom:0}
+.viewer.no3d .mvwrap{display:none}
+.viewer.no3d .side{padding-top:52px}
+.viewer.no3d .arbox{display:none}
 .viewer .arbox{margin-top:auto;display:grid;gap:12px;padding-top:18px}
 .viewer .arbtn{height:56px;font-size:13px}
 .viewer .qr{display:none;grid-template-columns:96px 1fr;gap:16px;align-items:center;background:var(--cream);border-radius:16px;padding:14px}
@@ -229,6 +250,9 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
   .viewer .sheet{inset:auto 0 0 0;height:94svh;border-radius:24px 24px 0 0;grid-template-columns:1fr;grid-template-rows:minmax(0,1.1fr) auto}
   .viewer .side{padding:20px 22px calc(18px + env(safe-area-inset-bottom));gap:8px}
   .viewer .side h2{font-size:32px}
+  .viewer:not(.no3d) .side{max-height:56svh}
+  .viewer.no3d .sheet{inset:auto 0 0 0;height:auto;max-height:90svh;max-width:none}
+  .viewer .story{font-size:19px}
   .viewer .side .ds{font-size:15px}
   .viewer .arbox{padding-top:10px}
   .viewer .navbtn{top:auto;bottom:12px;transform:none;width:40px;height:40px}
@@ -453,7 +477,10 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
       <div class="eyebrow" id="vSec"></div>
       <div class="ttl"><h2 id="vName"></h2><div class="pr" id="vPrice"></div></div>
       <p class="ds" id="vDesc"></p>
-      <div class="tags" id="vTags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <p class="story" id="vStory"></p>
+      <div class="meta" id="vTags"></div>
+      <div class="blk" id="vGlossBlk"><h4>What’s in it</h4><dl id="vGloss"></dl></div>
+      <div class="blk" id="vAlgBlk"><h4>Allergens</h4><div class="alg" id="vAlg"></div><p class="fine">Based on the listed ingredients. Please tell your server about any allergies.</p></div>
       <div class="arbox">
         <button class="btn btn-teak arbtn" id="vAR" hidden>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>
@@ -517,8 +544,95 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
 /* =========================================================
    1. SEED MENU (from wayan-restaurants.com/new-york menus)
    ========================================================= */
+/* Dish details: [story, heat 0–3, allergens]. Heat and allergens are estimated from the menu wording —
+   the kitchen should confirm them in the admin. */
+const DETAILS = {
+  'chickpea-satay': ['A plant-based satay: chickpea grilled on the skewer, finished with shiitake and toasted sesame seeds.', 0, ['Sesame']],
+  'scallop-satay': ['Sweet sea scallops grilled on the skewer and brushed with chiltepin butter — a little wild-chili heat — brightened with makrut lime.', 1, ['Molluscs', 'Dairy']],
+  'shrimp-satay': ['Grilled shrimp skewers topped with dabu dabu, the fresh chili-tomato relish of North Sulawesi, and a squeeze of lime.', 2, ['Shellfish']],
+  'chicken-satay': ['The classic: grilled chicken skewers with peanut sauce and lime — Indonesia’s most-loved street food.', 0, ['Peanuts']],
+  'lamb-satay': ['Grilled lamb skewers lacquered with chili-spiked kecap manis, Indonesia’s sweet soy, with pickled peppers to cut the richness.', 1, ['Soy']],
+  'beef-satay': ['Grilled beef skewers with a Padang-style sauce — the deeply spiced cooking of West Sumatra — and fresh lime.', 1, []],
+  'spring-rolls': ['Crisp golden rolls filled with vegetables, served with a bright green chili emulsion and fresh mint.', 1, ['Gluten']],
+  'gado-gado': ['Our take on Jakarta’s beloved gado gado: avocado and cucumber with peanut relish, crunchy lotus chips and egg.', 0, ['Peanuts', 'Egg']],
+  'tamarind-citrus-salad': ['A crisp, tangy salad of cabbage and Asian pear with tamarind and citrus, finished with macadamia nuts.', 0, ['Tree nuts']],
+  'guava-salad': ['Guava with bitter radicchio and cool cucumber in a rujak vinaigrette, inspired by Indonesia’s sweet-sour-spicy fruit salad.', 1, []],
+  'hiramasa-sashimi': ['Silky raw yellowtail amberjack with a ginger-turmeric dressing and sambal matah, Bali’s fresh shallot-lemongrass sambal.', 1, ['Fish']],
+  'hamachi-tartare': ['Hamachi tartare with acar pickles, black rice and green-chili sambal hijau. Add shrimp chips for extra crunch.', 1, ['Fish']],
+  'crispy-baby-squid': ['Crispy baby squid with a tomato-onion sambal and fresh cilantro.', 1, ['Molluscs']],
+  'octopus-plancha': ['Octopus seared on the plancha, with roasted fennel, sweet chili sauce and cilantro.', 1, ['Molluscs']],
+  'escargot-rendang': ['A French classic goes to Sumatra: escargot with rendang spices and garlic-herb butter, with toasted brioche for dipping.', 1, ['Molluscs', 'Dairy', 'Gluten']],
+  'roasted-cauliflower': ['A hearty vegetable main: roasted cauliflower in coconut curry with sautéed brussels sprouts and lime.', 1, []],
+  'steamed-black-sea-bass': ['Delicately steamed black sea bass over rainbow chard, with a bright chili-calamansi vinaigrette.', 1, ['Fish']],
+  'branzino-ikan-bakar': ['Ikan bakar means “grilled fish”: branzino grilled Indonesian-style with sambal tomat, brussels sprout purée and lime.', 2, ['Fish']],
+  'lobster-noodles': ['Wayan’s signature: lobster and noodles tossed in black pepper butter with fragrant Thai basil — rich, peppery and made for sharing.', 1, ['Shellfish', 'Dairy', 'Gluten']],
+  'chicken-lombok': ['Charred chicken with roasted sweet potato, koji for deep savory flavor, and Thai basil.', 1, []],
+  'roasted-duck': ['Roasted duck in calamansi gulai — a Sumatran-style coconut curry brightened with citrus — with Asian pear and cashews.', 1, ['Tree nuts']],
+  'crispy-pork-ribs': ['Crispy pork ribs in a sweet-sour soy tamarind glaze, scattered with sesame seeds and smoky urfa biber chili.', 1, ['Soy', 'Sesame']],
+  'crispy-black-sea-bass': ['A showpiece for the table: crispy black sea bass with market greens in urap — spiced coconut — and sambal tomat.', 2, ['Fish']],
+  'beef-tenderloin': ['Caramelized beef tenderloin with spring onion sambal, asparagus and pickled chili. Made for sharing.', 2, []],
+  'kerupuk': ['House-made Indonesian crackers, puffed and crisp, with sambal terasi and makrut lime powder.', 2, ['Shellfish']],
+  'corn-fritter': ['Bakwan jagung — crisp Indonesian corn fritters — with kecap manis for dipping. A guest favorite.', 0, ['Gluten', 'Soy']],
+  'shishito': ['Blistered shishito peppers in a sweet soy and pepper glaze. Mostly mild — about one in ten has a kick.', 1, ['Soy']],
+  'layered-cabbage': ['Layered cabbage with garlic-ginger sambal and crispy shiitake.', 1, []],
+  'eggplant-balado': ['Tender eggplant in balado, the chili-shallot sauce of West Sumatra, with roasted tomatoes.', 2, []],
+  'avocado-gado-toast': ['A brunch twist on gado gado: avocado toast with a soft-boiled egg, cucumber and peanut relish.', 0, ['Gluten', 'Egg', 'Peanuts']],
+  'indonesian-omelet': ['An omelet with melted gruyère, sambal tomat and cilantro.', 1, ['Egg', 'Dairy']],
+  'chicken-sandwich': ['The full brunch stack: chicken sandwich with bacon, fried egg and chicken sausage, served with crispy fries.', 0, ['Gluten', 'Egg']],
+  'shrimp-burger': ['A shrimp burger with green chili sauce, gruyère and Thai basil. Add a fried egg if you like.', 1, ['Shellfish', 'Dairy', 'Gluten']],
+  'beef-mie-goreng': ['Mie goreng, Indonesia’s favorite stir-fried noodles, with beef, a fried egg, savoy cabbage and crispy shallots.', 1, ['Gluten', 'Egg']],
+  'crazy-rice': ['Inspired by Jakarta’s late-night nasi gila — “crazy rice” — loaded with short rib, bacon and sausage under a fried egg.', 1, ['Egg']],
+  'pandan-french-toast': ['Pandan-scented French toast with roasted pineapple and kaya, the coconut-egg jam of Southeast Asia.', 0, ['Gluten', 'Egg', 'Dairy']],
+  'brunch-lobster-noodle': ['Wayan’s signature: lobster and noodles tossed in black pepper butter with fragrant Thai basil — rich, peppery and made for sharing.', 1, ['Shellfish', 'Dairy', 'Gluten']],
+  'sambalada': ['Wayan’s spicy michelada: lager with housemade sambal, tomato, tamari and cumin.', 1, ['Gluten', 'Soy']],
+  'kopi': ['Kopi means coffee: reposado tequila with coconut milk and espresso.', 0, []],
+  'pandan-custard': ['Silky pandan custard — the fragrant leaf often called Southeast Asia’s vanilla — topped with tangy passion fruit.', 0, ['Egg', 'Dairy']],
+  'banana-sundae': ['Caramelized bananas with banana cake and violet ube ice cream. Made for sharing.', 0, ['Dairy', 'Gluten', 'Egg']]
+};
+const GLOSSARY = [
+  'satay|Skewered meat or seafood grilled over high heat — Indonesia’s best-loved street food.',
+  'makrut lime|Aromatic Southeast Asian lime; its leaves and zest bring a floral citrus perfume.',
+  'chiltepin|A tiny wild chili from northern Mexico and the US Southwest — small, but fiery.',
+  'dabu dabu|Fresh relish of chopped chili, tomato and shallot from Manado, North Sulawesi.',
+  'kecap manis|Indonesian sweet soy sauce, thick and rich with palm sugar.',
+  'padang|Padang, West Sumatra — home of richly spiced, chili-forward cooking.',
+  'gado gado|Jakarta’s classic salad with peanut sauce; the name means “mix-mix”.',
+  'acar|Indonesian quick pickle, usually cucumber, carrot and shallot.',
+  'rujak|Indonesian fruit salad with a sweet, sour and spicy palm-sugar dressing.',
+  'sambal matah|Balinese raw sambal of shallot, lemongrass, chili and lime leaf in oil.',
+  'sambal hijau|Green chili sambal from West Sumatra — fresh, bright, gently hot.',
+  'sambal tomat|Tomato and chili sambal, sweet and tangy.',
+  'sambal terasi|Chili sambal made with terasi, fermented shrimp paste — deep and funky.',
+  'sambal|Chili relish — the heart of every Indonesian table.',
+  'rendang|Slow-cooked West Sumatran spice paste with coconut, rich and aromatic.',
+  'hiramasa|Yellowtail amberjack, prized for clean, buttery raw slices.',
+  'hamachi|Japanese amberjack (yellowtail), rich and silky.',
+  'ikan bakar|“Grilled fish” — charred over the flame, Indonesian-style.',
+  'koji|Rice cultured with the mold behind miso and soy sauce; adds deep umami.',
+  'gulai|Sumatran-style curry of coconut milk, turmeric and warm spices.',
+  'calamansi|Small, tart Southeast Asian citrus, somewhere between lime and mandarin.',
+  'urfa biber|Smoky, raisin-like Turkish chili flakes with gentle heat.',
+  'urap|Javanese greens tossed with spiced, toasted grated coconut.',
+  'kerupuk|Indonesian crackers that puff up crisp when fried.',
+  'balado|West Sumatran chili-shallot-tomato sauce.',
+  'shishito|Mild Japanese pepper — roughly one in ten is spicy.',
+  'mie goreng|Indonesian stir-fried noodles, usually seasoned with sweet soy.',
+  'nasi gila|“Crazy rice” — Jakarta’s late-night fried rice piled with meats.',
+  'kaya|Coconut and egg jam, often perfumed with pandan.',
+  'pandan|Fragrant tropical leaf with a vanilla-like, grassy sweetness.',
+  'ube|Purple yam from the Philippines, nutty and vanilla-sweet.',
+  'tamari|Japanese soy sauce, rich and smooth.',
+  'kopi|Indonesian for coffee.',
+  'reposado|Tequila rested in oak for two months to a year.',
+  'michelada|Beer cocktail with lime, spices and savory seasoning.',
+  'gruyère|Nutty Swiss alpine cheese that melts beautifully.',
+  'plancha|A flat, very hot griddle for a fast, even sear.'
+].join('\n');
+const ALLERGENS = ['Peanuts', 'Tree nuts', 'Shellfish', 'Molluscs', 'Fish', 'Egg', 'Dairy', 'Gluten', 'Soy', 'Sesame'];
+const HEAT = ['', 'Mild', 'Medium', 'Hot'];
+
 const SEED = {
-  version: 1,
+  version: 2,
   restaurant: {
     name: 'Wayan', location: 'New York',
     tagline: 'Indonesian cuisine with a modern French flair. Spin, zoom and place our signature plates in augmented reality — true to size.',
@@ -527,6 +641,7 @@ const SEED = {
     hours: 'Lunch|Mon–Fri 12:00–3:30pm\nBrunch|Sat–Sun 11:30am–3:30pm\nDinner|Mon–Wed 5:30–10pm\n|Thu 5:30–11pm\n|Fri–Sat 5pm–12am\n|Sun 5–10pm',
     footnote: 'Menu changes with the seasons · Please tell your server about any allergies · 3D models are illustrative'
   },
+  glossary: GLOSSARY,
   tabs: [
     { id: 'dinner', label: 'Dinner', note: '', sections: [
       { id: 'satays', title: 'Satays', note: '' },
@@ -584,6 +699,7 @@ const SEED = {
     ['dessert','sweets','banana-sundae','Banana Sundae','caramelized banana, banana cake, ube ice cream',16]
   ].map(([tab, section, id, name, desc, price, o = {}]) => ({
     id, tab, section, name, desc, price: String(price), extra: o.extra || '', tags: o.tags || [],
+    story: (DETAILS[id] || [])[0] || '', heat: (DETAILS[id] || [])[1] || 0, allergens: (DETAILS[id] || [])[2] || [],
     featured: !!o.featured, hero: !!o.hero, available: true,
     model: o.model ? { src: 'models/' + o.model + '.glb', poster: 'models/' + o.model + '.webp', iosSrc: '' } : null
   }))
@@ -779,15 +895,35 @@ function renderMenu() {
     </section>`).join('') : `<p class="empty">No dishes here yet.</p>`;
 }
 
+const CHILI = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.2 13.6c1.4-.4 2.6-1.6 3.4-3.2.9-1.8 2.6-2.9 4.6-2.9 2.6 0 4.6 2 4.6 4.5 0 3.9-4.6 8.2-11.6 8.6-1.6.1-2.4-.7-2.3-1.6.2-1.4.8-4.9 1.3-5.4z"/><path fill="none" stroke="#3f7a3a" stroke-width="1.8" stroke-linecap="round" d="M14.6 7.6c.2-1.8 1.2-3.2 3-3.8M15.5 8.2c1.4-.6 2.6-.5 3.6.2"/></svg>';
+const heatIcons = n => n ? `<span class="heat" title="${HEAT[n]} heat" aria-label="${HEAT[n]} heat">${CHILI.repeat(n)}</span>` : '';
+function glossaryMap() {
+  const src = (MENU && MENU.glossary != null) ? MENU.glossary : GLOSSARY;
+  return src.split('\n').map(l => l.split('|')).filter(p => p[0] && p[1]).map(([t, d]) => ({ t: t.trim(), d: d.trim() }));
+}
+function glossaryFor(it) {
+  const sec = secOf(it.tab, it.section);
+  const plain = x => String(x || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  const hay = ' ' + plain([it.name, it.desc, it.extra, sec?.title].join(' ')) + ' ';
+  const found = [];
+  for (const g of glossaryMap()) {
+    const t = plain(g.t);
+    const re = new RegExp('(^|[^\\p{L}])' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?(?=$|[^\\p{L}])', 'u');
+    if (!re.test(hay)) continue;
+    if (found.some(f => plain(f.t).includes(t))) continue;
+    found.push(g);
+  }
+  return found;
+}
 function itemHTML(it) {
   const has = !!(it.model && it.model.src);
   const tags = (it.tags || []).length ? `<div class="tags">${it.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : '';
   const body = `
-    <div class="line"><span class="nm">${esc(it.name)}</span><span class="dots" aria-hidden="true"></span><span class="pr">${esc(fmtPrice(it.price))}</span></div>
-    <div><div class="ds">${esc(it.desc)}${it.extra ? ` · <span class="add">${esc(it.extra)}</span>` : ''}${it.available === false ? ' · <b>sold out</b>' : ''}</div>${tags}${has ? `<span class="cta3d">View in 3D / AR →</span>` : ''}</div>`;
+    <div class="line"><span class="nm">${esc(it.name)}${heatIcons(it.heat)}</span><span class="dots" aria-hidden="true"></span><span class="pr">${esc(fmtPrice(it.price))}</span></div>
+    <div><div class="ds">${esc(it.desc)}${it.extra ? ` · <span class="add">${esc(it.extra)}</span>` : ''}${it.available === false ? ' · <b>sold out</b>' : ''}</div>${tags}${has ? `<span class="cta3d">View in 3D / AR →</span>` : `<span class="cta3d muted">Details →</span>`}</div>`;
   return has
     ? `<button class="item has3d${it.available === false ? ' sold' : ''}" data-open="${esc(it.id)}"><span class="thumb">${posterImg(it)}<span class="b">3D</span></span>${body}</button>`
-    : `<div class="item${it.available === false ? ' sold' : ''}">${body}</div>`;
+    : `<button class="item det${it.available === false ? ' sold' : ''}" data-open="${esc(it.id)}">${body}</button>`;
 }
 
 async function renderHero() {
@@ -809,11 +945,14 @@ const V = { id: null, list: [] };
 const mv = $('#mv');
 async function openViewer(id, push = true) {
   const it = MENU.items.find(i => i.id === id);
-  if (!it || !it.model?.src) return;
+  if (!it) return;
+  const has = !!it.model?.src;
   V.id = id;
   const inTab = with3d().filter(i => i.tab === it.tab);
-  V.list = inTab.length > 1 ? inTab : with3d();
+  V.list = has ? (inTab.length > 1 ? inTab : with3d()) : MENU.items.filter(i => i.tab === it.tab);
   const viewer = $('#viewer');
+  viewer.classList.toggle('no3d', !has);
+  $('.viewer .side').scrollTop = 0;
   viewer.hidden = false; viewer.classList.add('open'); document.body.style.overflow = 'hidden';
   $('#vErr').classList.remove('show'); $('#vSize').hidden = true; $('#vAR').hidden = true; $('#vQR').classList.remove('show');
   const sec = secOf(it.tab, it.section);
@@ -821,8 +960,16 @@ async function openViewer(id, push = true) {
   $('#vName').textContent = it.name;
   $('#vPrice').textContent = fmtPrice(it.price);
   $('#vDesc').textContent = it.desc + (it.extra ? ` · ${it.extra}` : '');
-  $('#vTags').innerHTML = (it.tags || []).map(t => `<span class="pill soft">${esc(t)}</span>`).join('');
+  $('#vStory').textContent = it.story || ''; $('#vStory').hidden = !it.story;
+  $('#vTags').innerHTML = (it.heat ? `<span class="heatpill">${CHILI.repeat(it.heat)}${HEAT[it.heat]}</span>` : '') + (it.tags || []).map(t => `<span class="pill soft">${esc(t)}</span>`).join('');
+  $('#vTags').hidden = !$('#vTags').innerHTML;
+  const gl = glossaryFor(it);
+  $('#vGloss').innerHTML = gl.map(g => `<div><dt>${esc(g.t)}</dt><dd>${esc(g.d)}</dd></div>`).join('');
+  $('#vGlossBlk').hidden = !gl.length;
+  $('#vAlg').innerHTML = (it.allergens || []).map(a => `<span>${esc(a)}</span>`).join('');
+  $('#vAlgBlk').hidden = !(it.allergens || []).length;
   $('#vPrev').hidden = $('#vNext').hidden = V.list.length < 2;
+  if (!has) { mv.removeAttribute('src'); if (push) history.replaceState(null, '', '#dish/' + encodeURIComponent(id)); setTimeout(() => $('.viewer .x').focus({ preventScroll: true }), 50); return; }
   mv.alt = `3D model of ${it.name}`;
   mv.poster = URLS.get(it.model.poster) || '';
   if (it.model.iosSrc) mv.setAttribute('ios-src', await urlFor(it.model.iosSrc)); else mv.removeAttribute('ios-src');
@@ -993,7 +1140,13 @@ function renderEditor() {
       <div class="card">
         <h6>Dish details</h6>
         <div class="f"><label for="eName">Name</label><input type="text" id="eName" value="${esc(it.name)}"></div>
-        <div class="f"><label for="eDesc">Description</label><textarea id="eDesc" rows="2" placeholder="e.g. indo noodle, black pepper butter, thai basil">${esc(it.desc)}</textarea></div>
+        <div class="f"><label for="eDesc">Menu line (components)</label><textarea id="eDesc" rows="2" placeholder="e.g. indo noodle, black pepper butter, thai basil">${esc(it.desc)}</textarea></div>
+        <div class="f"><label for="eStory">Detail description (shown when a guest opens the dish)</label><textarea id="eStory" rows="3" placeholder="One or two sentences about the dish">${esc(it.story || '')}</textarea></div>
+        <div class="f2">
+          <div class="f"><label for="eHeat">Heat</label><select id="eHeat">${['None', 'Mild', 'Medium', 'Hot'].map((h, i) => `<option value="${i}"${(+it.heat || 0) === i ? ' selected' : ''}>${h}</option>`).join('')}</select></div>
+          <div class="f"><span class="lbl">Explained terms</span><p class="help" style="margin:4px 0 0">${(() => { const g = glossaryFor(it); return g.length ? g.map(x => esc(x.t)).join(', ') : 'none — add terms in Settings → Glossary'; })()}</p></div>
+        </div>
+        <div class="f"><span class="lbl">Allergens</span><div class="checks">${ALLERGENS.map(a => `<label><input type="checkbox" data-alg="${esc(a)}"${(it.allergens || []).includes(a) ? ' checked' : ''}>${esc(a)}</label>`).join('')}</div></div>
         <div class="f2">
           <div class="f"><label for="ePrice">Price</label><input type="text" id="ePrice" inputmode="decimal" value="${esc(it.price)}" placeholder="38"></div>
           <div class="f"><label for="eExtra">Add-on note</label><input type="text" id="eExtra" value="${esc(it.extra)}" placeholder="add egg +3"></div>
@@ -1049,6 +1202,9 @@ function renderEditor() {
   const set = (k, v) => { it[k] = v; markDirty(); renderAdminList(); };
   $('#eName').addEventListener('input', e => { set('name', e.target.value); $('#aEdit h2').textContent = e.target.value || 'Untitled'; });
   $('#eDesc').addEventListener('input', e => set('desc', e.target.value));
+  $('#eStory').addEventListener('input', e => set('story', e.target.value));
+  $('#eHeat').addEventListener('change', e => set('heat', +e.target.value));
+  $$('[data-alg]', E).forEach(c => c.addEventListener('change', () => { it.allergens = $$('[data-alg]:checked', E).map(x => x.dataset.alg); markDirty(); }));
   $('#ePrice').addEventListener('input', e => set('price', e.target.value.trim()));
   $('#eExtra').addEventListener('input', e => set('extra', e.target.value));
   $('#eTab').addEventListener('change', e => { const nt = A.draft.tabs.find(x => x.id === e.target.value); it.tab = nt.id; it.section = nt.sections[0]?.id || ''; markDirty(); renderAdminList(); renderEditor(); });
@@ -1188,6 +1344,9 @@ function renderSettings() {
         <div class="f"><label>Hours (one per line, “Label|Time”)</label><textarea data-r="hours" rows="6">${esc(R.hours)}</textarea></div>
         <div class="f"><label>Menu footnote</label><input type="text" data-r="footnote" value="${esc(R.footnote)}"></div>
       </div>
+      <div class="card" style="grid-column:1/-1"><h6>Glossary</h6>
+        <div class="f"><label>One term per line, “term|explanation”. Terms found in a dish’s name or menu line are explained in its detail view.</label><textarea id="sGloss" rows="10" style="font-family:ui-monospace,monospace;font-size:13px">${esc(A.draft.glossary != null ? A.draft.glossary : GLOSSARY)}</textarea></div>
+      </div>
       <div>
         <div class="card" style="margin-bottom:20px"><h6>Menus</h6>
           ${A.draft.tabs.map((t, ti) => `<div class="f2" style="margin-bottom:8px"><input type="text" data-tl="${ti}" value="${esc(t.label)}" aria-label="Menu name"><input type="text" data-tn="${ti}" value="${esc(t.note || '')}" placeholder="Note (e.g. hours)" aria-label="Menu note"></div>`).join('')}
@@ -1206,6 +1365,7 @@ function renderSettings() {
     </div>
     <div class="savebar"><span class="dirty" id="aDirty">${A.dirty ? 'Unsaved changes' : 'All changes saved'}</span><span class="sp"></span><button class="btn btn-teak btn-sm" id="eSave">Save &amp; publish</button></div>`;
   $$('[data-r]', E).forEach(i => i.addEventListener('input', () => { R[i.dataset.r] = i.value; markDirty(); }));
+  $('#sGloss').addEventListener('input', e => { A.draft.glossary = e.target.value; markDirty(); });
   $$('[data-tl]', E).forEach(i => i.addEventListener('input', () => { A.draft.tabs[+i.dataset.tl].label = i.value; markDirty(); }));
   $$('[data-tn]', E).forEach(i => i.addEventListener('input', () => { A.draft.tabs[+i.dataset.tn].note = i.value; markDirty(); }));
   $('#sAddTab').addEventListener('click', () => { const n = prompt('Menu name (e.g. “Lunch”, “Cocktails”)'); if (!n) return; A.draft.tabs.push({ id: slug(n) + '-' + uid().slice(-3), label: n.trim(), note: '', sections: [{ id: 'main-' + uid().slice(-3), title: n.trim(), note: '' }] }); markDirty(); renderSettings(); $('#aTabFilter').innerHTML = `<option value="">All menus</option>` + A.draft.tabs.map(t => `<option value="${esc(t.id)}">${esc(t.label)}</option>`).join(''); });

@@ -52,6 +52,10 @@ Menyimpan menu di `self-host/data/` dan upload di `self-host/uploads/`. Pasang d
 
 Link langsung ke dish: `https://<domain>/#dish/<id>` (mis. `#dish/lobster-noodles`). Di desktop, viewer menampilkan QR otomatis.
 
+## Detail dish
+
+Setiap dish bisa diklik untuk membuka detail: deskripsi, tingkat pedas, penjelasan istilah (sambal matah, kecap manis, rendang, dll.) dan alergen. Semua bisa diedit di admin (dish editor → *Detail description*, *Heat*, *Allergens*; daftar istilah di *Settings → Glossary*). Tingkat pedas dan alergen awal diperkirakan dari bahan yang tertulis di menu — minta dapur mengecek sebelum dipakai resmi.
+
 ## Share link
 
 `og-image.jpg` (1200×630) dipakai sebagai thumbnail saat link dibagikan (WhatsApp, iMessage, Instagram, Facebook, X). URL gambarnya absolut (`https://wayan-new-york.vercel.app/og-image.jpg`) di `<head>` `index.html` — ganti kalau pakai custom domain. Kalau link sudah pernah dibagikan sebelumnya, preview lama bisa ter-cache; refresh lewat https://developers.facebook.com/tools/debug/ (juga dipakai WhatsApp).
