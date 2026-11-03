@@ -287,8 +287,6 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
 .st-rail{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:grid;gap:14px;pointer-events:auto}
 .st-rail button{width:10px;height:10px;border-radius:50%;border:1px solid rgba(227,197,143,.6);background:transparent;padding:0;transition:all .3s}
 .st-rail button.on{background:var(--gold);transform:scale(1.4)}
-.st-pin{display:none}
-@keyframes pinIn{from{opacity:0;transform:translateY(18px)}}
 .st-skip{position:absolute;right:24px;bottom:22px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(243,236,225,.7);text-decoration:none;pointer-events:auto;border-bottom:1px solid rgba(227,197,143,.4);padding-bottom:3px}
 .st-steps{position:relative;margin-top:calc(-100svh + var(--hdr));z-index:2;pointer-events:none}
 .st-card{pointer-events:auto}
@@ -312,25 +310,17 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
 .st-heat{display:inline-flex;align-items:center;gap:4px;color:#e7836a;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
 .st-heat svg{width:15px;height:15px}
 @media (max-width:860px){
-  .st-stage .st-art{left:50%;right:auto;top:2%;width:min(82vw,44svh);transform:translateX(-50%)}
-  .st-steps .st-card{display:none}
-  .st-pin{display:block;position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));pointer-events:auto}
-  .st-pin .st-card{opacity:1;transform:none;margin:0}
-  .motion .st-pin .pin-in{animation:pinIn .55s cubic-bezier(.2,.7,.2,1)}
-  .st-terms{display:none}
+  .st-stage .st-art{left:50%;right:auto;top:6%;width:min(84vw,52svh);transform:translateX(-50%)}
   .st-rail{display:none!important}
   .st-card{opacity:0}
   .st-skip{bottom:auto;top:14px;right:16px}
   .st-big{display:none}
-  .st-step{min-height:75svh;padding:0}
-  .st-step:first-child{min-height:calc(100svh - var(--hdr))}
-  .st-step:last-child{min-height:calc(100svh - var(--hdr))}
+  .st-step{align-items:flex-end;padding:0 0 6svh;min-height:105svh}
+  .st-step:first-child{min-height:100svh}
   .st-card{width:auto;margin:0 14px;padding:22px 20px;border-radius:20px;background:rgba(17,36,23,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(227,197,143,.18)}
-  .st-card h3{font-size:34px;margin:6px 0 10px}
-  .st-card .st-story{font-size:18px}
-  .st-card p{font-size:14.5px;margin-bottom:12px;line-height:1.5}
-  .st-num{margin-bottom:10px;font-size:17px}
-  .st-card .btn{height:42px}
+  .st-card h3{font-size:38px;margin:8px 0 12px}
+  .st-card .st-story{font-size:19px}
+  .st-card p{font-size:15px;margin-bottom:12px}
   .st-terms{margin-bottom:14px}
   .st-terms div:nth-child(n+2){display:none}
 }
@@ -504,7 +494,6 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
       </div>
       <div class="st-rail" id="stRail"></div>
       <a class="st-skip" href="#menu">Skip to menu ↓</a>
-      <div class="st-pin" id="stPin"></div>
     </div>
     <div class="st-steps" id="stSteps"></div>
   </section>
@@ -1059,7 +1048,7 @@ function renderStory() {
   const intro = { kind: 'intro', dish: dishes[0] };
   const outro = { kind: 'outro', dish: dishes[n - 1] };
   ST.chapters = [intro, ...dishes.map((d, i) => ({ kind: 'dish', dish: d, i })), outro];
-  ST.cards = ST.chapters.map((c, k) => {
+  $('#stSteps').innerHTML = ST.chapters.map((c, k) => {
     if (c.kind === 'intro') return `<article class="st-step" data-k="${k}"><div class="st-card">
       <div class="eyebrow">${esc(R.storyEyebrow ?? S.storyEyebrow)}</div>
       <h3>${esc(R.storyTitle ?? S.storyTitle)}</h3>
@@ -1079,8 +1068,7 @@ function renderStory() {
       ${terms.length ? `<div class="st-terms">${terms.map(g => `<div><b>${esc(g.t)}</b>${esc(g.d)}</div>`).join('')}</div>` : ''}
       <div class="st-cta"><button class="btn btn-gold" data-open="${esc(it.id)}">View on your table</button><span class="price">${esc(fmtPrice(it.price))}</span>${it.heat ? `<span class="st-heat">${CHILI.repeat(it.heat)} ${HEAT[it.heat]}</span>` : ''}</div>
     </div></article>`;
-  });
-  $('#stSteps').innerHTML = ST.cards.join('');
+  }).join('');
   $('#stRail').innerHTML = dishes.map((d, i) => `<button aria-label="${esc(dishTitle(d))}" data-k="${i + 1}"></button>`).join('');
   ST.steps = $$('.st-step'); ST.active = -1; ST.dish = null;
   onScroll();
@@ -1119,8 +1107,6 @@ function onScroll() {
     if (k !== ST.active) {
       ST.active = k;
       ST.steps.forEach((st, i) => st.classList.toggle('on', i === k));
-      const card = ST.steps[k].querySelector('.st-card');
-      $('#stPin').innerHTML = card ? `<div class="st-card pin-in">${card.innerHTML}</div>` : '';
       $$('#stRail button').forEach(b => b.classList.toggle('on', +b.dataset.k === k));
       stSetDish(ST.chapters[k].dish);
     }
