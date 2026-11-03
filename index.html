@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wayan New York — Menu in 3D</title>
+<meta name="description" content="Wayan by Cédric Vongerichten — Indonesian cuisine with a modern French flair. Explore the menu in 3D and place dishes on your table in AR.">
+<meta name="theme-color" content="#17301f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+  // model-viewer bundles the meshopt decoder; this location just enables it for compressed (meshopt) GLBs.
+  self.ModelViewerElement = self.ModelViewerElement || {};
+  self.ModelViewerElement.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer@0.21.0/meshopt_decoder.js';
+</script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+<style>
+:root{
+  --paper:#fbf8f2; --cream:#f3ece1; --brick:#ebe2d4; --line:#ddd2c1;
+  --teak:#8b5a36; --teak-d:#5f3c22; --teak-l:#b8875c;
+  --jungle:#17301f; --jungle-2:#21412c; --leaf:#5f7f4c; --leaf-l:#8aa676;
+  --gold:#c9a063; --gold-l:#e3c58f;
+  --ink:#1e1a15; --muted:#6c6458; --danger:#a23b2a;
+  --serif:"Cormorant Garamond", "Times New Roman", serif;
+  --sans:"Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:14px; --shadow:0 18px 40px -22px rgba(40,25,10,.35);
+  --hdr:68px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:min(1180px,100% - 40px);margin-inline:auto}
+.eyebrow{font-family:var(--sans);font-size:12px;letter-spacing:.28em;text-transform:uppercase;font-weight:500}
+
+/* ---------- header ---------- */
+.hdr{position:sticky;top:0;z-index:40;height:var(--hdr);background:rgba(23,48,31,.92);backdrop-filter:saturate(1.2) blur(10px);-webkit-backdrop-filter:saturate(1.2) blur(10px);color:var(--cream);border-bottom:1px solid rgba(227,197,143,.18)}
+.hdr .wrap{height:100%;display:flex;align-items:center;gap:28px}
+.brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1}
+.brand b{font-family:var(--serif);font-weight:500;font-size:28px;letter-spacing:.32em;margin-right:-.32em}
+.brand small{font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold-l);margin-top:5px}
+.nav{display:flex;gap:26px;margin-left:auto;align-items:center}
+.nav a{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;opacity:.86;padding:6px 0;border-bottom:1px solid transparent}
+.nav a:hover,.nav a[aria-current]{opacity:1;border-bottom-color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:46px;padding:0 22px;border-radius:999px;border:1px solid transparent;font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;text-decoration:none;transition:background .2s,color .2s,border-color .2s,transform .15s;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);color:var(--jungle)}
+.btn-gold:hover{background:var(--gold-l)}
+.btn-ghost{border-color:rgba(243,236,225,.45);color:var(--cream);background:transparent}
+.btn-ghost:hover{border-color:var(--cream);background:rgba(243,236,225,.06)}
+.btn-teak{background:var(--teak);color:#fff}
+.btn-teak:hover{background:var(--teak-d)}
+.btn-line{border-color:var(--line);background:#fff;color:var(--ink)}
+.btn-line:hover{border-color:var(--teak-l)}
+.btn-sm{height:36px;padding:0 14px;font-size:11px}
+.hdr .btn{height:40px}
+.menu-toggle{display:none;margin-left:auto;background:none;border:0;color:var(--cream);width:44px;height:44px;border-radius:50%}
+@media (max-width:900px){
+  .nav{display:none}
+  .menu-toggle{display:inline-grid;place-items:center}
+  .hdr .reserve{display:none}
+  .nav.open{display:flex;position:fixed;inset:var(--hdr) 0 auto 0;flex-direction:column;align-items:flex-start;gap:4px;padding:18px 24px 26px;background:var(--jungle);border-bottom:1px solid rgba(227,197,143,.2)}
+  .nav.open a{font-size:14px;padding:10px 0}
+  .nav.open .reserve-m{display:inline-flex;margin-top:10px;padding:0 22px}
+}
+.reserve-m{display:none}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;background:var(--jungle);color:var(--cream);isolation:isolate}
+.hero .leaves{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;align-items:center;gap:30px;min-height:min(640px,calc(100svh - var(--hdr)));padding-block:56px 64px}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,6.4vw,84px);line-height:.98;margin:18px 0 22px;letter-spacing:-.01em}
+.hero h1 em{font-style:italic;color:var(--gold-l)}
+.hero p.lede{font-size:17px;font-weight:300;max-width:30em;color:rgba(243,236,225,.86);margin:0 0 30px}
+.hero .eyebrow{color:var(--gold-l)}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero .meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:36px;font-size:13px;color:rgba(243,236,225,.7);letter-spacing:.04em}
+.hero .meta span{display:inline-flex;gap:8px;align-items:center}
+.stage{position:relative;aspect-ratio:1/1;width:100%;max-width:560px;justify-self:center}
+.stage::before{content:"";position:absolute;inset:6%;border-radius:50%;background:radial-gradient(closest-side,#f3ece1 0%,#efe5d5 62%,rgba(239,229,213,0) 100%)}
+.stage::after{content:"";position:absolute;inset:2%;border-radius:50%;border:1px solid rgba(227,197,143,.35)}
+.stage model-viewer{position:absolute;inset:0;width:100%;height:100%;--poster-color:transparent;background:transparent}
+.stage .chip{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(23,48,31,.92);border:1px solid rgba(227,197,143,.35);border-radius:999px;padding:8px 8px 8px 18px;white-space:nowrap;z-index:2}
+.stage .chip strong{font-family:var(--serif);font-weight:500;font-size:19px}
+.stage .chip .p{color:var(--gold-l);font-size:14px}
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;min-height:0;padding-block:36px 44px;gap:8px}
+  .stage{max-width:380px;width:92%;order:2;margin-top:10px}
+  .hero .copy{order:1}
+  .hero .meta{margin-top:24px}
+}
+
+/* ---------- featured 3D strip ---------- */
+.feat{scroll-margin-top:var(--hdr);padding:72px 0 28px;background:linear-gradient(var(--cream),var(--paper))}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px}
+.sec-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,48px);line-height:1;margin:8px 0 0}
+.sec-head h2 em{color:var(--teak)}
+.sec-head .eyebrow{color:var(--teak)}
+.sec-head p{margin:0;color:var(--muted);max-width:32em;font-size:15px}
+@media (max-width:700px){.sec-head{flex-direction:column;align-items:flex-start}.strip{grid-auto-columns:72vw}.feat{padding-top:48px}}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 22px;scrollbar-width:thin}
+.card3d{scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px 14px 18px;text-align:left;display:flex;flex-direction:column;gap:6px;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative}
+.card3d:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--teak-l)}
+.card3d .ph{aspect-ratio:1/1;border-radius:16px;background:radial-gradient(circle at 50% 60%,#f6f0e6 0%,#ece2d2 70%);display:grid;place-items:center;overflow:hidden;margin-bottom:8px}
+.card3d .ph img{width:92%;height:92%;object-fit:contain;transition:transform .5s}
+.card3d:hover .ph img{transform:scale(1.05) rotate(-2deg)}
+.card3d .nm{font-family:var(--serif);font-size:23px;line-height:1.1}
+.card3d .ds{font-size:13px;color:var(--muted)}
+.card3d .row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--jungle);color:var(--gold-l)}
+.pill.soft{background:var(--cream);color:var(--teak-d)}
+.price{font-family:var(--serif);font-size:20px;color:var(--teak-d)}
+
+/* ---------- menu ---------- */
+.menu{padding:40px 0 80px}
+.menubar{position:sticky;top:var(--hdr);z-index:30;background:rgba(251,248,242,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:12px}
+.menubar .wrap{display:flex;flex-direction:column;gap:10px;padding-block:14px 10px}
+.tabs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:#fff;height:40px;padding:0 20px;border-radius:999px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:500}
+.tab[aria-selected="true"]{background:var(--teak);border-color:var(--teak);color:#fff}
+.toggle3d{margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);user-select:none;cursor:pointer}
+.switch{width:40px;height:24px;border-radius:999px;background:var(--line);position:relative;transition:background .2s;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+input:checked + .switch{background:var(--leaf)}
+input:checked + .switch::after{transform:translateX(16px)}
+.chips{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -4px}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:none;font-size:13px;padding:6px 12px;border-radius:999px;text-decoration:none;color:var(--muted)}
+.chips a:hover,.chips a.on{color:var(--ink);background:var(--cream)}
+.tabnote{color:var(--muted);font-size:14px;margin:18px 0 0}
+.section{padding-top:38px;scroll-margin-top:calc(var(--hdr) + 120px)}
+.section h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(30px,3.4vw,40px);margin:0;display:flex;align-items:center;gap:18px;color:var(--teak-d)}
+.section h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.section .snote{font-size:13px;color:var(--muted);margin:4px 0 0}
+.items{display:grid;grid-template-columns:1fr 1fr;column-gap:56px;margin-top:10px}
+@media (max-width:860px){.items{grid-template-columns:1fr}}
+.item{display:grid;grid-template-columns:1fr;gap:2px;align-content:start;padding:16px 0;border-bottom:1px dashed var(--line);text-align:left;background:none;border-left:0;border-right:0;border-top:0;width:100%;position:relative}
+.item.has3d{grid-template-columns:68px 1fr;column-gap:16px;cursor:pointer}
+.item.has3d:hover .nm{color:var(--teak)}
+.item .thumb{grid-row:span 2;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle,#f5efe4,#e8dcc8);display:grid;place-items:center;position:relative;transition:transform .25s}
+.item.has3d:hover .thumb{transform:rotate(-6deg) scale(1.04)}
+.item .thumb img{width:88%;height:88%;object-fit:contain}
+.item .thumb .b{position:absolute;right:-4px;bottom:-2px;background:var(--jungle);color:var(--gold-l);font-size:9px;font-weight:600;letter-spacing:.08em;border-radius:999px;padding:3px 6px;border:2px solid var(--paper)}
+.item .line{display:flex;align-items:baseline;gap:10px;min-width:0}
+.item .nm{font-family:var(--serif);font-size:22px;font-weight:500;line-height:1.2;transition:color .2s}
+.item .dots{flex:1;border-bottom:1.5px dotted #c9bba6;transform:translateY(-5px);min-width:20px}
+.item .pr{font-family:var(--serif);font-size:21px;color:var(--teak-d)}
+.item .ds{font-size:14px;color:var(--muted);font-weight:300;letter-spacing:.01em}
+.item .ds .add{font-style:italic;color:var(--teak)}
+.item .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.item .tags span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--leaf);border:1px solid #cfd9c4;border-radius:999px;padding:2px 8px}
+.item .cta3d{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teak);font-weight:600;margin-top:6px;display:inline-flex;gap:6px;align-items:center}
+.item.sold .nm,.item.sold .pr{opacity:.45;text-decoration:line-through}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.foot-note{margin-top:38px;font-size:13px;color:var(--muted);text-align:center}
+
+/* ---------- info + footer ---------- */
+.info{background:var(--jungle);color:var(--cream);padding:64px 0}
+.info .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.info h4{font-family:var(--serif);font-weight:400;font-style:italic;font-size:28px;margin:0 0 12px;color:var(--gold-l)}
+.info p,.info li{margin:0;font-size:15px;color:rgba(243,236,225,.82);font-weight:300}
+.info ul{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+.info a{text-decoration:none;border-bottom:1px solid rgba(227,197,143,.4)}
+@media (max-width:820px){.info .wrap{grid-template-columns:1fr;gap:30px}}
+footer{background:#10231a;color:rgba(243,236,225,.6);font-size:12.5px;padding:22px 0}
+footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer button{background:none;border:0;color:inherit;text-decoration:underline;text-underline-offset:3px;padding:0}
+
+/* ---------- viewer ---------- */
+.viewer{position:fixed;inset:0;z-index:80;display:none}
+.viewer.open{display:block}
+.viewer .scrim{position:absolute;inset:0;background:rgba(14,22,16,.62);backdrop-filter:blur(3px);animation:fade .25s}
+.viewer .sheet{position:absolute;inset:4vh 4vw;max-width:1120px;margin:auto;background:var(--paper);border-radius:26px;overflow:hidden;display:grid;grid-template-columns:1.35fr 1fr;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:rise .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(30px)}}
+.viewer .mvwrap{position:relative;background:radial-gradient(circle at 50% 55%,#f8f3ea 0%,#ece1cf 75%,#e4d6c0 100%);min-height:0}
+.viewer model-viewer{width:100%;height:100%;--poster-color:transparent;--progress-bar-color:var(--teak)}
+.viewer .hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:12px;color:var(--muted);background:rgba(251,248,242,.85);padding:6px 14px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.viewer .size{position:absolute;left:16px;top:16px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teak-d);background:rgba(251,248,242,.85);padding:6px 12px;border-radius:999px}
+.viewer .x{position:absolute;right:14px;top:14px;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
+.viewer .navbtn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.9);display:grid;place-items:center;z-index:2}
+.viewer .navbtn.prev{left:14px}.viewer .navbtn.next{right:14px}
+.viewer .side{padding:44px 38px 30px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.viewer .side .eyebrow{color:var(--teak)}
+.viewer .side h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,3.4vw,46px);line-height:1;margin:0}
+.viewer .side .pr{font-family:var(--serif);font-size:26px;color:var(--teak-d)}
+.viewer .ttl{display:flex;flex-direction:column;gap:10px}
+@media (max-width:860px){.viewer .ttl{flex-direction:row;align-items:baseline;justify-content:space-between;gap:16px}}
+.viewer .side .ds{color:var(--muted);font-size:16px;font-weight:300;margin:0}
+.viewer .arbox{margin-top:auto;display:grid;gap:12px;padding-top:18px}
+.viewer .arbtn{height:56px;font-size:13px}
+.viewer .qr{display:none;grid-template-columns:96px 1fr;gap:16px;align-items:center;background:var(--cream);border-radius:16px;padding:14px}
+.viewer .qr.show{display:grid}
+.viewer .qr .code{width:96px;height:96px;background:#fff;border-radius:10px;display:grid;place-items:center;overflow:hidden}
+.viewer .qr .code img,.viewer .qr .code svg{width:86px;height:86px}
+.viewer .qr p{margin:0;font-size:13px;color:var(--muted)}
+.viewer .qr strong{display:block;color:var(--ink);font-weight:500;font-size:14px;margin-bottom:2px}
+.viewer .note{font-size:12px;color:var(--muted);margin:0}
+.viewer .err{display:none;position:absolute;inset:0;place-items:center;text-align:center;padding:30px;color:var(--muted)}
+.viewer .err.show{display:grid}
+@media (max-width:860px){
+  .viewer .sheet{inset:auto 0 0 0;height:94svh;border-radius:24px 24px 0 0;grid-template-columns:1fr;grid-template-rows:minmax(0,1.1fr) auto}
+  .viewer .side{padding:20px 22px calc(18px + env(safe-area-inset-bottom));gap:8px}
+  .viewer .side h2{font-size:32px}
+  .viewer .side .ds{font-size:15px}
+  .viewer .arbox{padding-top:10px}
+  .viewer .navbtn{top:auto;bottom:12px;transform:none;width:40px;height:40px}
+  .viewer .hint{bottom:18px}
+}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:200;background:var(--ink);color:var(--cream);padding:12px 18px;border-radius:12px;font-size:14px;transition:all .3s;pointer-events:none;max-width:calc(100% - 40px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.admin.open ~ .toast{bottom:84px}
+
+/* ---------- admin ---------- */
+.admin{position:fixed;inset:0;z-index:120;background:#f6f2ea;display:none;flex-direction:column;font-size:14px}
+.admin.open{display:flex}
+.admin header{height:62px;flex:none;background:var(--jungle);color:var(--cream);display:flex;align-items:center;gap:16px;padding:0 20px}
+.admin header .brand b{font-size:22px}
+.admin header .mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(227,197,143,.15);color:var(--gold-l)}
+.admin header .sp{flex:1}
+.admin header nav{display:flex;gap:4px}
+.admin header nav button{background:none;border:0;color:rgba(243,236,225,.75);padding:8px 12px;border-radius:8px;font-size:13px;letter-spacing:.06em}
+.admin header nav button[aria-selected="true"]{background:rgba(243,236,225,.12);color:#fff}
+.admin .hbtn{background:none;border:1px solid rgba(243,236,225,.3);color:var(--cream);height:34px;padding:0 12px;border-radius:8px;font-size:12px}
+.admin .body{flex:1;min-height:0;display:grid;grid-template-columns:380px 1fr}
+.admin .list{border-right:1px solid var(--line);overflow:auto;background:#fff}
+.admin .list .tools{position:sticky;top:0;background:#fff;padding:14px;border-bottom:1px solid var(--line);display:grid;gap:10px;z-index:2}
+.admin .list .tools .r{display:flex;gap:8px}
+.admin input[type=text],.admin input[type=number],.admin input[type=password],.admin input[type=url],.admin select,.admin textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:14px}
+.admin textarea{resize:vertical;min-height:72px}
+.admin input:focus,.admin select:focus,.admin textarea:focus{outline:none;border-color:var(--teak-l);box-shadow:0 0 0 3px rgba(184,135,92,.18)}
+.admin .grp{padding:6px 0}
+.admin .grp h5{margin:0;padding:12px 16px 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.admin .li{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:8px 12px 8px 16px;border:0;background:none;width:100%;text-align:left;border-left:3px solid transparent}
+.admin .li:hover{background:#faf6ef}
+.admin .li.on{background:#f3ece1;border-left-color:var(--teak)}
+.admin .li .t{width:44px;height:44px;border-radius:10px;background:#f1eadf;display:grid;place-items:center;overflow:hidden;font-size:10px;color:var(--muted)}
+.admin .li .t img{width:100%;height:100%;object-fit:contain}
+.admin .li .n{font-weight:500;line-height:1.2}
+.admin .li .s{font-size:12px;color:var(--muted)}
+.admin .li .ord{display:flex;flex-direction:column;gap:2px}
+.admin .li .ord span{width:24px;height:18px;display:grid;place-items:center;border-radius:4px;color:var(--muted);font-size:11px}
+.admin .li .ord span:hover{background:#e9e1d3;color:var(--ink)}
+.badge3d{font-size:9.5px;font-weight:600;letter-spacing:.1em;padding:2px 6px;border-radius:999px;background:var(--jungle);color:var(--gold-l);margin-left:6px;vertical-align:2px}
+.badge-off{background:#eadfd0;color:var(--muted)}
+.admin .edit{overflow:auto;padding:26px 30px 0}
+.admin .edit h2{font-family:var(--serif);font-weight:500;font-size:34px;margin:0 0 4px}
+.admin .edit .sub{color:var(--muted);margin:0 0 22px}
+.admin .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;align-items:start}
+@media (max-width:1180px){.admin .cols{grid-template-columns:minmax(0,1fr)}}
+body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
+.admin .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+.admin .card h6{margin:0 0 14px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--teak);font-weight:600}
+.admin .f{display:grid;gap:6px;margin-bottom:14px}
+.admin .f label,.admin .lbl{font-size:12px;font-weight:500;color:var(--muted)}
+.admin .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin .checks{display:flex;flex-wrap:wrap;gap:8px}
+.admin .checks label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px}
+.admin .checks input{accent-color:var(--teak)}
+.drop{border:1.5px dashed var(--teak-l);border-radius:14px;padding:22px;text-align:center;background:#fcf9f4;cursor:pointer;transition:background .2s}
+.drop.over{background:#f3ead9}
+.drop strong{display:block;font-size:15px;margin-bottom:4px}
+.drop small{color:var(--muted)}
+.prev3d{position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 55%,#f8f3ea,#e8dcc8);margin-bottom:12px;display:none}
+.prev3d.show{display:block}
+.prev3d model-viewer{width:100%;height:100%}
+.prev3d .dims{position:absolute;left:10px;top:10px;font-size:11px;background:rgba(255,255,255,.88);padding:4px 10px;border-radius:999px}
+.warn{background:#fbefe2;border:1px solid #efcfa9;color:#7a4a1c;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px;display:none}
+.warn.show{display:block}
+.posterrow{display:flex;gap:14px;align-items:center;margin-top:12px}
+.posterrow .pv{width:84px;height:84px;border-radius:12px;background:#f1eadf;display:grid;place-items:center;overflow:hidden;flex:none;font-size:11px;color:var(--muted)}
+.posterrow .pv img{width:100%;height:100%;object-fit:contain}
+.posterrow .b{display:flex;flex-wrap:wrap;gap:8px}
+.admin .savebar{position:sticky;bottom:0;z-index:5;margin:26px -30px 0;padding:14px 30px;background:rgba(246,242,234,.95);backdrop-filter:blur(6px);border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.admin .savebar .sp{flex:1}
+.admin .savebar .dirty{color:var(--teak);font-size:13px}
+.btn-danger{background:#fff;border-color:#e6c4bc;color:var(--danger)}
+.btn-danger:hover{background:#fbf0ed}
+.admin .muted{color:var(--muted)}
+.admin .help{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.login{position:fixed;inset:0;z-index:130;background:var(--jungle);display:none;place-items:center;padding:20px}
+.login.open{display:grid}
+.login form{background:var(--paper);border-radius:22px;padding:34px 30px;width:min(380px,100%);display:grid;gap:14px;text-align:center}
+.login h2{font-family:var(--serif);font-weight:500;font-size:32px;margin:0}
+.login input{border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;text-align:center;width:100%}
+.login .m{font-size:12.5px;color:var(--muted);margin:0}
+.login .e{color:var(--danger);font-size:13px;min-height:18px;margin:0}
+@media (max-width:820px){
+  .admin header nav{display:none}
+  .admin header{gap:10px;padding:0 14px}
+  .admin header .mode{font-size:9.5px;letter-spacing:.08em;white-space:nowrap}
+  .admin .hbtn{white-space:nowrap;padding:0 10px}
+  .admin header .brand b{font-size:18px}
+  .admin .body{grid-template-columns:1fr}
+  .admin .list{display:block}
+  .admin.editing .list{display:none}
+  .admin:not(.editing) .edit{display:none}
+  .admin .edit{padding:18px 16px 0}
+  .admin .savebar{margin:20px -16px 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+  .admin .backl{display:inline-flex!important}
+}
+.admin .backl{display:none;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Wayan New York — home"><b>WAYAN</b><small data-bind="location">New York</small></a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#menu" aria-current="page">Menus</a>
+      <a data-link="about" href="https://www.wayan-restaurants.com/new-york" target="_blank" rel="noopener">About</a>
+      <a data-link="events" href="https://www.wayan-restaurants.com/new-york/about/events" target="_blank" rel="noopener">Events</a>
+      <a data-link="gallery" href="https://www.wayan-restaurants.com/new-york/gallery" target="_blank" rel="noopener">Gallery</a>
+      <a href="#visit">Contact</a>
+      <a class="btn btn-gold btn-sm reserve-m" data-link="reserve" href="#" target="_blank" rel="noopener">Reserve</a>
+    </nav>
+    <a class="btn btn-gold reserve" data-link="reserve" href="#" target="_blank" rel="noopener">Reserve</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="nav">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="heroTitle">
+    <svg class="leaves" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg1" x1="0" x2="1"><stop offset="0" stop-color="#2a5236"/><stop offset="1" stop-color="#1d3b27"/></linearGradient>
+        <radialGradient id="glow" cx=".72" cy=".45" r=".55"><stop offset="0" stop-color="#c9a063" stop-opacity=".22"/><stop offset="1" stop-color="#c9a063" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1440" height="700" fill="url(#glow)"/>
+      <g fill="url(#lg1)" opacity=".9">
+        <path d="M-60 720 C 40 520, 180 420, 330 380 C 260 470, 170 600, 120 760 Z"/>
+        <path d="M-40 560 C 60 470, 150 450, 250 460 C 170 500, 90 560, 20 650 Z" opacity=".7"/>
+        <path d="M1500 -40 C 1360 60, 1290 170, 1270 300 C 1350 230, 1440 170, 1520 140 Z"/>
+        <path d="M1520 260 C 1400 290, 1320 360, 1290 460 C 1370 420, 1450 400, 1540 400 Z" opacity=".75"/>
+      </g>
+      <g fill="none" stroke="#3b6a48" stroke-width="1.2" opacity=".55">
+        <path d="M-60 720 C 40 520, 180 420, 330 380"/><path d="M1500 -40 C 1360 60, 1290 170, 1270 300"/>
+        <path d="M60 640 l60 -40 M100 580 l70 -30 M150 520 l70 -20 M200 470 l70 -16"/>
+        <path d="M1420 40 l-30 70 M1370 90 l-20 70 M1330 150 l-14 70"/>
+      </g>
+      <g fill="#c9a063" opacity=".5"><circle cx="210" cy="120" r="2"/><circle cx="640" cy="70" r="1.5"/><circle cx="1180" cy="620" r="2"/><circle cx="880" cy="640" r="1.5"/></g>
+    </svg>
+    <div class="wrap">
+      <div class="copy">
+        <div class="eyebrow">Wayan · <span data-bind="location">New York</span> · Menu in 3D</div>
+        <h1 id="heroTitle">See every dish <em>on&nbsp;your table</em> before you order.</h1>
+        <p class="lede" data-bind="tagline">Indonesian cuisine with a modern French flair. Spin, zoom and place our signature plates in augmented reality — true to size.</p>
+        <div class="ctas">
+          <a class="btn btn-gold" href="#feat">Explore 3D dishes</a>
+          <a class="btn btn-ghost" href="#menu">Full menu</a>
+        </div>
+        <div class="meta">
+          <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span data-bind="address">20 Spring St, New York</span></span>
+          <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg><span id="count3d">6 dishes in 3D</span></span>
+        </div>
+      </div>
+      <div class="stage" id="stage">
+        <model-viewer id="heroMv" alt="" camera-controls disable-zoom auto-rotate auto-rotate-delay="0" rotation-per-second="18deg" interaction-prompt="none" camera-orbit="25deg 60deg 128%" shadow-intensity="1" shadow-softness=".9" environment-image="neutral" exposure="1.05" touch-action="pan-y" loading="eager"><div slot="progress-bar"></div></model-viewer>
+        <div class="chip"><strong id="heroName">Lobster Noodles</strong><span class="p" id="heroPrice">38</span><button class="btn btn-gold btn-sm" id="heroOpen">View in AR</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feat" id="feat" aria-labelledby="featTitle">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="eyebrow">Tap · rotate · place</div><h2 id="featTitle">Tonight, <em>in 3D</em></h2></div>
+        <p>Open any dish and choose <b>View on your table</b> — your phone camera places it right in front of you, at its real size.</p>
+      </div>
+      <div class="strip" id="strip"></div>
+    </div>
+  </section>
+
+  <section class="menu" id="menu" aria-labelledby="menuTitle">
+    <h2 id="menuTitle" class="sr-only">Menu</h2>
+    <div class="menubar">
+      <div class="wrap">
+        <div class="tabs" role="tablist" id="tabs"></div>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="tabnote" id="tabnote"></p>
+      <div id="sections"></div>
+      <p class="foot-note" id="footnote"></p>
+    </div>
+  </section>
+
+  <section class="info" id="visit" aria-label="Visit">
+    <div class="wrap">
+      <div><h4>Visit</h4><p data-bind="address">20 Spring St, New York, NY 10012</p><p style="margin-top:8px"><a data-link="phone" href="#" data-bind="phone">(917) 261-4388</a></p></div>
+      <div><h4>Hours</h4><ul id="hours"></ul></div>
+      <div><h4>Reserve</h4><p>Tables for lunch, brunch and dinner. Large parties and private events on request.</p><p style="margin-top:14px"><a class="btn btn-gold btn-sm" data-link="reserve" href="#" target="_blank" rel="noopener" style="border:0">Book a table</a></p></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr"></span> Wayan · <span data-bind="location">New York</span></span>
+    <span>3D models are illustrative · <button id="staffBtn">Staff</button></span>
+  </div>
+</footer>
+
+<!-- 3D / AR viewer -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="vName" hidden>
+  <div class="scrim" data-close></div>
+  <div class="sheet">
+    <div class="mvwrap">
+      <model-viewer id="mv" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="2500" rotation-per-second="14deg" interaction-prompt="auto" camera-orbit="25deg 62deg 105%" shadow-intensity="1" shadow-softness=".9" environment-image="neutral" exposure="1.05" xr-environment>
+        <button slot="ar-button" style="display:none"></button>
+      </model-viewer>
+      <span class="size" id="vSize" hidden></span>
+      <span class="hint" id="vHint">Drag to rotate · pinch to zoom</span>
+      <div class="err" id="vErr"><div><b>We couldn’t load this model.</b><br>Please try again in a moment.</div></div>
+      <button class="navbtn prev" id="vPrev" aria-label="Previous dish"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="navbtn next" id="vNext" aria-label="Next dish"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="side">
+      <button class="x" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="eyebrow" id="vSec"></div>
+      <div class="ttl"><h2 id="vName"></h2><div class="pr" id="vPrice"></div></div>
+      <p class="ds" id="vDesc"></p>
+      <div class="tags" id="vTags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <div class="arbox">
+        <button class="btn btn-teak arbtn" id="vAR" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>
+          View on your table
+        </button>
+        <div class="qr" id="vQR"><div class="code" id="vQRCode"></div><p><strong>Open on your phone for AR</strong>Scan to place this dish on your table, at real size.</p></div>
+        <p class="note" id="vNote">AR places the dish at its real size. Point your camera at the table and move slowly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- staff login -->
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <form id="loginForm">
+    <div class="brand" style="align-items:center;color:var(--teak-d)"><b>WAYAN</b></div>
+    <h2 id="loginTitle">Menu admin</h2>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required>
+    <p class="e" id="loginErr"></p>
+    <button class="btn btn-teak" type="submit">Sign in</button>
+    <button class="btn btn-line" type="button" id="loginCancel">Back to menu</button>
+    <p class="m" id="loginMode"></p>
+  </form>
+</div>
+
+<!-- admin -->
+<div class="admin" id="admin" aria-label="Menu admin">
+  <header>
+    <div class="brand"><b>WAYAN</b></div>
+    <span class="mode" id="aMode">Local</span>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-apane="dishes">Dishes</button>
+      <button role="tab" aria-selected="false" data-apane="settings">Settings</button>
+    </nav>
+    <span class="sp"></span>
+    <button class="hbtn" id="aView">View menu</button>
+    <button class="hbtn" id="aLogout">Sign out</button>
+  </header>
+  <div class="body">
+    <aside class="list" id="aList">
+      <div class="tools">
+        <div class="r"><input type="text" id="aSearch" placeholder="Search dishes…" aria-label="Search dishes"><button class="btn btn-teak btn-sm" id="aAdd" style="flex:none">+ Dish</button></div>
+        <div class="r"><select id="aTabFilter" aria-label="Filter by menu"></select><select id="a3dFilter" aria-label="Filter by 3D"><option value="">All</option><option value="1">With 3D</option><option value="0">No 3D yet</option></select></div>
+        <div class="r" style="justify-content:space-between"><span class="muted" id="aStats"></span><button class="btn btn-line btn-sm" id="aSettingsM" style="display:none">Settings</button></div>
+      </div>
+      <div id="aItems"></div>
+    </aside>
+    <section class="edit" id="aEdit"></section>
+  </div>
+</div>
+
+<input type="file" id="fileGlb" accept=".glb,model/gltf-binary" hidden>
+<input type="file" id="fileUsdz" accept=".usdz,model/vnd.usdz+zip" hidden>
+<input type="file" id="filePoster" accept="image/*" hidden>
+<input type="file" id="fileImport" accept="application/json,.json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+/* =========================================================
+   1. SEED MENU (from wayan-restaurants.com/new-york menus)
+   ========================================================= */
+const SEED = {
+  version: 1,
+  restaurant: {
+    name: 'Wayan', location: 'New York',
+    tagline: 'Indonesian cuisine with a modern French flair. Spin, zoom and place our signature plates in augmented reality — true to size.',
+    address: '20 Spring St, New York, NY 10012', phone: '(917) 261-4388',
+    reserveUrl: 'https://www.wayan-restaurants.com/new-york',
+    hours: 'Lunch|Mon–Fri 12:00–3:30pm\nBrunch|Sat–Sun 11:30am–3:30pm\nDinner|Mon–Wed 5:30–10pm\n|Thu 5:30–11pm\n|Fri–Sat 5pm–12am\n|Sun 5–10pm',
+    footnote: 'Menu changes with the seasons · Please tell your server about any allergies · 3D models are illustrative'
+  },
+  tabs: [
+    { id: 'dinner', label: 'Dinner', note: '', sections: [
+      { id: 'satays', title: 'Satays', note: '' },
+      { id: 'small', title: 'Small Plates', note: '' },
+      { id: 'large', title: 'Large Plates', note: '' },
+      { id: 'signatures', title: 'Wayan Signatures', note: 'Made for sharing' },
+      { id: 'sides', title: 'Sides', note: '' } ] },
+    { id: 'brunch', label: 'Brunch', note: 'Saturday & Sunday, 11:30am – 3:30pm', sections: [
+      { id: 'brunch', title: 'Brunch', note: '' },
+      { id: 'brunch-cocktails', title: 'Brunch Cocktails', note: '' } ] },
+    { id: 'dessert', label: 'Dessert', note: '', sections: [
+      { id: 'sweets', title: 'Sweets', note: '' } ] }
+  ],
+  items: [
+    ['dinner','satays','chickpea-satay','Chickpea','shiitake, sesame seeds',16],
+    ['dinner','satays','scallop-satay','Scallop','chiltepin butter, makrut lime',22],
+    ['dinner','satays','shrimp-satay','Shrimp','dabu dabu, lime',22],
+    ['dinner','satays','chicken-satay','Chicken','peanut sauce, lime',18,{model:'satay',tags:['Popular'],featured:true}],
+    ['dinner','satays','lamb-satay','Lamb','chili kecap manis, pickled peppers',18],
+    ['dinner','satays','beef-satay','Beef','padang sauce, lime',22],
+    ['dinner','small','spring-rolls','Vegetable Spring Rolls','green chili emulsion, mint',18],
+    ['dinner','small','gado-gado','Avocado “Gado Gado”','cucumber, peanut relish, lotus chips, egg',20,{model:'gado-gado',featured:true}],
+    ['dinner','small','tamarind-citrus-salad','Tamarind Citrus Salad','cabbage, asian pear, macadamia nuts',19],
+    ['dinner','small','guava-salad','Guava Salad','radicchio, cucumber, rujak vinaigrette',19],
+    ['dinner','small','hiramasa-sashimi','Hiramasa Sashimi','ginger turmeric dressing, sambal matah',23],
+    ['dinner','small','hamachi-tartare','Hamachi Tartare','acar, black rice, sambal hijau',23,{extra:'add shrimp chips +10'}],
+    ['dinner','small','crispy-baby-squid','Crispy Baby Squid','tomato-onion sambal, cilantro',20],
+    ['dinner','small','octopus-plancha','Octopus a la Plancha','roasted fennel, sweet chili sauce, cilantro',25],
+    ['dinner','small','escargot-rendang','Escargot Rendang','toasted brioche, garlic-herb butter, lime',22],
+    ['dinner','large','roasted-cauliflower','Roasted Cauliflower','coconut curry, sautéed brussels sprouts, lime',28],
+    ['dinner','large','steamed-black-sea-bass','Steamed Black Sea Bass','rainbow chard, chili-calamansi vinaigrette',32],
+    ['dinner','large','branzino-ikan-bakar','Grilled Branzino Ikan Bakar','brussels sprout purée, sambal tomat, lime',34],
+    ['dinner','large','lobster-noodles','Lobster Noodles','indo noodle, black pepper butter, thai basil',38,{model:'lobster-noodles',tags:['Signature','Popular'],featured:true,hero:true}],
+    ['dinner','large','chicken-lombok','Charred Chicken Lombok','roasted sweet potato, koji, thai basil',30],
+    ['dinner','large','roasted-duck','Roasted Duck','calamansi gulai, asian pear, cashew nuts',39],
+    ['dinner','large','crispy-pork-ribs','Crispy Pork Ribs','soy tamarind glaze, sesame seeds, urfa biber',35],
+    ['dinner','signatures','crispy-black-sea-bass','Crispy Black Sea Bass','market choy urap, sambal tomat',78],
+    ['dinner','signatures','beef-tenderloin','Caramelized Beef Tenderloin','spring onion sambal, asparagus, pickled chili',48],
+    ['dinner','sides','kerupuk','House-made Kerupuk','sambal terasi, makrut powder',10],
+    ['dinner','sides','corn-fritter','Corn Fritter','kecap manis',14,{model:'corn-fritter',tags:['Popular'],featured:true}],
+    ['dinner','sides','shishito','Shishito Peppers','sweet soy pepper glaze',14],
+    ['dinner','sides','layered-cabbage','Layered Cabbage','garlic-ginger sambal, crispy shiitake',16],
+    ['dinner','sides','eggplant-balado','Eggplant Balado','chili sauce, roasted tomatoes',16],
+    ['brunch','brunch','avocado-gado-toast','Avocado Gado Toast','soft boiled egg, cucumber, peanut relish',19],
+    ['brunch','brunch','indonesian-omelet','Indonesian Omelet','gruyere, sambal tomat, cilantro',22],
+    ['brunch','brunch','chicken-sandwich','Chicken Sandwich','bacon, fried egg, chicken sausage, crispy fries',22],
+    ['brunch','brunch','shrimp-burger','Shrimp Burger','green chili sauce, gruyere, thai basil',24,{extra:'add egg +3'}],
+    ['brunch','brunch','beef-mie-goreng','Beef Mie Goreng','stir fried noodles, fried egg, savoy cabbage, crispy shallots',22],
+    ['brunch','brunch','crazy-rice','Crazy Rice','fried egg, short rib, bacon, sausage',22],
+    ['brunch','brunch','pandan-french-toast','Pandan French Toast','roasted pineapple, kaya jam',20],
+    ['brunch','brunch','brunch-lobster-noodle','Lobster Noodle','indo noodle, black pepper butter, thai basil',38,{model:'lobster-noodles',tags:['Signature']}],
+    ['brunch','brunch-cocktails','sambalada','Sambalada','lager, housemade sambal, tomato, tamari, cumin',19],
+    ['brunch','brunch-cocktails','kopi','Kopi','reposado tequila, coconut milk, afficionado ‘nihuta’ espresso',17],
+    ['dessert','sweets','pandan-custard','Pandan Custard','passion fruit',15,{model:'pandan-custard',tags:['Popular'],featured:true}],
+    ['dessert','sweets','banana-sundae','Banana Sundae','caramelized banana, banana cake, ube ice cream',16,{model:'banana-sundae',featured:true}]
+  ].map(([tab, section, id, name, desc, price, o = {}]) => ({
+    id, tab, section, name, desc, price: String(price), extra: o.extra || '', tags: o.tags || [],
+    featured: !!o.featured, hero: !!o.hero, available: true,
+    model: o.model ? { src: 'models/' + o.model + '.glb', poster: 'models/' + o.model + '.webp', iosSrc: '' } : null
+  }))
+};
+const TAG_OPTIONS = ['Signature', 'Popular', 'New', 'Spicy', 'Vegetarian', 'Vegan', 'Gluten-free', 'Contains nuts', 'Shellfish'];
+
+/* =========================================================
+   2. HELPERS
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const slug = s => String(s).toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').slice(0, 48) || 'dish';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+let toastT;
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+function b64ToBlob(b64, type) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type }); }
+function blobToB64(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); }); }
+const fmtPrice = p => (p === '' || p == null) ? '' : String(p).replace(/^\$/, '');
+const EMBED = (() => { try { return JSON.parse($('#embedded-assets').textContent); } catch { return {}; } })(); // only in the single-file build
+
+/* tiny IndexedDB wrapper */
+const idb = (() => {
+  let dbp;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('wayan-3d-menu', 1);
+    r.onupgradeneeded = () => { r.result.createObjectStore('kv'); r.result.createObjectStore('assets'); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (store, mode, fn) => { const db = await open(); return new Promise((res, rej) => { const t = db.transaction(store, mode); const s = t.objectStore(store); const q = fn(s); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }); };
+  return {
+    get: (store, k) => tx(store, 'readonly', s => s.get(k)),
+    set: (store, k, v) => tx(store, 'readwrite', s => s.put(v, k)),
+    del: (store, k) => tx(store, 'readwrite', s => s.delete(k)),
+    keys: (store) => tx(store, 'readonly', s => s.getAllKeys()),
+    clear: (store) => tx(store, 'readwrite', s => s.clear())
+  };
+})();
+
+/* =========================================================
+   3. STORAGE — server API if available, otherwise this browser
+   ========================================================= */
+const Store = {
+  mode: 'local', storage: '', adminReady: true, token: sessionStorage.getItem('wayan-admin-token') || '',
+  async init() {
+    try {
+      const r = await fetch('api/health', { cache: 'no-store' });
+      const h = r.ok ? await r.json() : null;
+      if (h && h.wayanMenu) { this.mode = 'server'; this.storage = h.storage || 'fs'; this.adminReady = h.adminReady !== false; }
+    } catch { /* static hosting / file:// — stay local */ }
+  },
+  async loadMenu() {
+    if (this.mode === 'server') {
+      const r = await fetch('api/menu' + (this.token ? '?fresh=' + Date.now() : ''), { cache: 'no-store' });
+      if (r.ok) { const m = await r.json(); if (m && Array.isArray(m.items) && m.tabs?.length) return m; }
+      return clone(SEED);
+    }
+    try { const m = await idb.get('kv', 'menu'); if (m && Array.isArray(m.items) && m.tabs?.length) return m; } catch {}
+    return clone(SEED);
+  },
+  async saveMenu(menu) {
+    if (this.mode === 'server') {
+      const r = await fetch('api/menu', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + this.token }, body: JSON.stringify(menu) });
+      if (r.status === 401) { throw new Error('Session expired — sign in again.'); }
+      if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+      return;
+    }
+    await idb.set('kv', 'menu', menu);
+  },
+  async putAsset(blob, filename) {
+    if (this.mode === 'server' && this.storage === 'blob') {
+      const { upload } = await import('./vendor/blob-client.js');
+      const ext = (filename.split('.').pop() || '').toLowerCase();
+      const type = { glb: 'model/gltf-binary', usdz: 'model/vnd.usdz+zip', webp: 'image/webp', png: 'image/png', jpg: 'image/jpeg' }[ext] || blob.type || 'application/octet-stream';
+      try {
+        const r = await upload('wayan/assets/' + filename, blob, { access: 'public', handleUploadUrl: new URL('api/upload', location.href).href, headers: { Authorization: 'Bearer ' + this.token }, contentType: type, multipart: blob.size > 8 * 1048576 });
+        return r.url;
+      } catch (e) { throw new Error(/unauthorized/i.test(e.message) ? 'Session expired — sign in again.' : 'Upload failed: ' + e.message); }
+    }
+    if (this.mode === 'server') {
+      const r = await fetch('api/upload?filename=' + encodeURIComponent(filename), { method: 'POST', headers: { 'Content-Type': blob.type || 'application/octet-stream', Authorization: 'Bearer ' + this.token }, body: blob });
+      if (r.status === 401) throw new Error('Session expired — sign in again.');
+      if (!r.ok) throw new Error('Upload failed (' + r.status + ')');
+      return (await r.json()).url;
+    }
+    const id = uid() + '-' + filename.replace(/[^\w.-]/g, '');
+    await idb.set('assets', id, { blob, name: filename, type: blob.type });
+    return 'idb:' + id;
+  },
+  async deleteAsset(ref) {
+    if (!ref) return;
+    if (ref.startsWith('idb:')) { await idb.del('assets', ref.slice(4)); URLS.delete(ref); }
+    else if (this.mode === 'server' && (ref.startsWith('uploads/') || /\.blob\.vercel-storage\.com\/wayan\/assets\//.test(ref))) {
+      fetch('api/upload?file=' + encodeURIComponent(ref), { method: 'DELETE', headers: { Authorization: 'Bearer ' + this.token } }).catch(() => {});
+    }
+  },
+  async login(pw) {
+    if (this.mode === 'server') {
+      const r = await fetch('api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) });
+      if (!r.ok) return false;
+      this.token = (await r.json()).token; sessionStorage.setItem('wayan-admin-token', this.token); return true;
+    }
+    const want = localStorage.getItem('wayan-admin-pin') || 'wayan';
+    if (pw !== want) return false;
+    this.token = 'local'; sessionStorage.setItem('wayan-admin-token', 'local'); return true;
+  },
+  logout() { const t = this.token; this.token = ''; sessionStorage.removeItem('wayan-admin-token'); if (this.mode === 'server' && t) fetch('api/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + t } }).catch(() => {}); }
+};
+
+/* asset refs → usable URLs: embedded:<key>, idb:<id>, data:, http(s), relative paths */
+const URLS = new Map();
+async function urlFor(ref) {
+  if (!ref) return '';
+  if (URLS.has(ref)) return URLS.get(ref);
+  let url = ref;
+  if (ref.startsWith('embedded:')) {
+    const k = ref.slice(9), b64 = EMBED[k];
+    url = b64 ? URL.createObjectURL(b64ToBlob(b64, k.endsWith('.glb') ? 'model/gltf-binary' : 'image/webp')) : 'models/' + k;
+  } else if (ref.startsWith('idb:')) {
+    try { const a = await idb.get('assets', ref.slice(4)); url = a ? URL.createObjectURL(a.blob) : ''; } catch { url = ''; }
+  }
+  URLS.set(ref, url);
+  return url;
+}
+
+/* =========================================================
+   4. PUBLIC MENU
+   ========================================================= */
+let MENU = null;
+let currentTab = 'dinner';
+let only3d = false;
+
+const tabOf = id => MENU.tabs.find(t => t.id === id);
+const secOf = (tab, id) => (tabOf(tab)?.sections || []).find(s => s.id === id);
+const with3d = () => MENU.items.filter(i => i.model && i.model.src);
+
+function bindRestaurant() {
+  const R = MENU.restaurant;
+  $$('[data-bind]').forEach(el => { const k = el.dataset.bind; if (R[k] != null && R[k] !== '') el.textContent = R[k]; });
+  $$('[data-link="reserve"]').forEach(a => a.href = R.reserveUrl || '#');
+  $$('[data-link="phone"]').forEach(a => a.href = 'tel:' + String(R.phone || '').replace(/[^\d+]/g, ''));
+  const hrs = (R.hours || '').split('\n').filter(Boolean).map(l => { const [a, b] = l.includes('|') ? l.split('|') : ['', l]; return `<li>${a ? `<b style="font-weight:500;color:var(--cream)">${esc(a)}</b> · ` : '<span style="display:inline-block;width:1.2em"></span>'}${esc(b)}</li>`; });
+  $('#hours').innerHTML = hrs.join('');
+  $('#footnote').textContent = R.footnote || '';
+  document.title = `${R.name} ${R.location} — Menu in 3D`;
+}
+
+async function renderAll() {
+  bindRestaurant();
+  // resolve all posters up-front (small)
+  await Promise.all(MENU.items.filter(i => i.model?.poster).map(i => urlFor(i.model.poster)));
+  renderStrip(); renderTabs(); renderMenu(); renderHero();
+  const n = new Set(with3d().map(i => i.model.src)).size; $('#count3d').textContent = `${n} dish${n === 1 ? '' : 'es'} in 3D`;
+}
+
+function posterImg(it, cls = '') {
+  const u = it.model?.poster ? URLS.get(it.model.poster) : '';
+  return u ? `<img class="${cls}" src="${u}" alt="" loading="lazy" decoding="async">` : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b8875c" stroke-width="1.2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>`;
+}
+
+function renderStrip() {
+  const list = with3d().filter(i => i.featured);
+  const items = list.length ? list : with3d();
+  // dedupe same model shown twice (e.g. lobster noodle on brunch + dinner)
+  const seen = new Set(); const uniq = items.filter(i => !seen.has(i.model.src) && seen.add(i.model.src));
+  $('#feat').hidden = !uniq.length;
+  $('#strip').innerHTML = uniq.map(it => `
+    <button class="card3d" data-open="${esc(it.id)}" aria-label="View ${esc(it.name)} in 3D">
+      <div class="ph">${posterImg(it)}</div>
+      <div class="eyebrow" style="color:var(--teak);font-size:10.5px">${esc(secOf(it.tab, it.section)?.title || '')}</div>
+      <div class="nm">${esc(it.name)}</div>
+      <div class="ds">${esc(it.desc)}</div>
+      <div class="row"><span class="pill">3D · AR</span><span class="price">${esc(fmtPrice(it.price))}</span></div>
+    </button>`).join('');
+}
+
+function renderTabs() {
+  if (!tabOf(currentTab)) currentTab = MENU.tabs[0]?.id;
+  $('#tabs').innerHTML = MENU.tabs.map(t => `<button class="tab" role="tab" aria-selected="${t.id === currentTab}" data-tab="${esc(t.id)}">${esc(t.label)}</button>`).join('') +
+    `<label class="toggle3d"><input type="checkbox" id="only3d" class="sr-only" ${only3d ? 'checked' : ''}><span class="switch" aria-hidden="true"></span>3D dishes only</label>`;
+}
+
+function renderMenu() {
+  const tab = tabOf(currentTab); if (!tab) return;
+  $('#tabnote').textContent = tab.note || ''; $('#tabnote').hidden = !tab.note;
+  const secs = tab.sections.map(s => ({ ...s, items: MENU.items.filter(i => i.tab === tab.id && i.section === s.id && (!only3d || (i.model && i.model.src))) })).filter(s => s.items.length);
+  $('#chips').innerHTML = secs.map(s => `<a href="#sec-${esc(s.id)}">${esc(s.title)}</a>`).join('');
+  $('#sections').innerHTML = secs.length ? secs.map(s => `
+    <section class="section" id="sec-${esc(s.id)}" aria-labelledby="h-${esc(s.id)}">
+      <h3 id="h-${esc(s.id)}">${esc(s.title)}</h3>${s.note ? `<p class="snote">${esc(s.note)}</p>` : ''}
+      <div class="items">${s.items.map(itemHTML).join('')}</div>
+    </section>`).join('') : `<p class="empty">No dishes here yet.</p>`;
+}
+
+function itemHTML(it) {
+  const has = !!(it.model && it.model.src);
+  const tags = (it.tags || []).length ? `<div class="tags">${it.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : '';
+  const body = `
+    <div class="line"><span class="nm">${esc(it.name)}</span><span class="dots" aria-hidden="true"></span><span class="pr">${esc(fmtPrice(it.price))}</span></div>
+    <div><div class="ds">${esc(it.desc)}${it.extra ? ` · <span class="add">${esc(it.extra)}</span>` : ''}${it.available === false ? ' · <b>sold out</b>' : ''}</div>${tags}${has ? `<span class="cta3d">View in 3D / AR →</span>` : ''}</div>`;
+  return has
+    ? `<button class="item has3d${it.available === false ? ' sold' : ''}" data-open="${esc(it.id)}"><span class="thumb">${posterImg(it)}<span class="b">3D</span></span>${body}</button>`
+    : `<div class="item${it.available === false ? ' sold' : ''}">${body}</div>`;
+}
+
+async function renderHero() {
+  const list = with3d();
+  const it = list.find(i => i.hero) || list.find(i => i.featured) || list[0];
+  const stage = $('#stage');
+  if (!it) { stage.hidden = true; return; }
+  stage.hidden = false;
+  const mv = $('#heroMv');
+  mv.alt = `3D model of ${it.name}`;
+  mv.poster = URLS.get(it.model.poster) || '';
+  mv.src = await urlFor(it.model.src);
+  $('#heroName').textContent = it.name; $('#heroPrice').textContent = fmtPrice(it.price);
+  $('#heroOpen').dataset.open = it.id;
+}
+
+/* ---------- viewer ---------- */
+const V = { id: null, list: [] };
+const mv = $('#mv');
+async function openViewer(id, push = true) {
+  const it = MENU.items.find(i => i.id === id);
+  if (!it || !it.model?.src) return;
+  V.id = id;
+  const inTab = with3d().filter(i => i.tab === it.tab);
+  V.list = inTab.length > 1 ? inTab : with3d();
+  const viewer = $('#viewer');
+  viewer.hidden = false; viewer.classList.add('open'); document.body.style.overflow = 'hidden';
+  $('#vErr').classList.remove('show'); $('#vSize').hidden = true; $('#vAR').hidden = true; $('#vQR').classList.remove('show');
+  const sec = secOf(it.tab, it.section);
+  $('#vSec').textContent = [tabOf(it.tab)?.label, sec?.title].filter(Boolean).join(' · ');
+  $('#vName').textContent = it.name;
+  $('#vPrice').textContent = fmtPrice(it.price);
+  $('#vDesc').textContent = it.desc + (it.extra ? ` · ${it.extra}` : '');
+  $('#vTags').innerHTML = (it.tags || []).map(t => `<span class="pill soft">${esc(t)}</span>`).join('');
+  $('#vPrev').hidden = $('#vNext').hidden = V.list.length < 2;
+  mv.alt = `3D model of ${it.name}`;
+  mv.poster = URLS.get(it.model.poster) || '';
+  if (it.model.iosSrc) mv.setAttribute('ios-src', await urlFor(it.model.iosSrc)); else mv.removeAttribute('ios-src');
+  mv.cameraOrbit = '25deg 62deg 105%';
+  mv.src = await urlFor(it.model.src);
+  if (push) history.replaceState(null, '', '#dish/' + encodeURIComponent(id));
+  setTimeout(() => $('.viewer .x').focus({ preventScroll: true }), 50);
+}
+function closeViewer() {
+  const v = $('#viewer'); v.classList.remove('open'); v.hidden = true; document.body.style.overflow = '';
+  if (location.hash.startsWith('#dish/')) history.replaceState(null, '', location.pathname + location.search);
+  const back = document.querySelector(`[data-open="${CSS.escape(V.id || '')}"]`); back && back.focus({ preventScroll: true });
+}
+function stepViewer(d) { const i = V.list.findIndex(x => x.id === V.id); const n = V.list[(i + d + V.list.length) % V.list.length]; n && openViewer(n.id); }
+
+mv.addEventListener('load', () => {
+  const s = mv.getDimensions ? mv.getDimensions() : null;
+  if (s && s.x) { const cm = v => Math.round(v * 100); $('#vSize').textContent = `Real size ≈ ${cm(s.x)} × ${cm(s.z)} cm`; $('#vSize').hidden = false; }
+  if (mv.canActivateAR) { $('#vAR').hidden = false; $('#vQR').classList.remove('show'); $('#vNote').hidden = false; $('#vNote').textContent = 'AR places the dish at its real size. Point your camera at the table and move slowly.'; }
+  else { $('#vNote').hidden = true; if (matchMedia('(pointer:fine)').matches) showQR(); else { $('#vNote').hidden = false; $('#vNote').textContent = 'AR isn’t available in this browser — try Chrome on Android or Safari on iPhone. You can still rotate and zoom the dish.'; } }
+});
+mv.addEventListener('error', () => $('#vErr').classList.add('show'));
+mv.addEventListener('ar-status', e => { if (e.detail.status === 'failed') toast('AR couldn’t start here — try Chrome on Android or Safari on iPhone.'); });
+$('#vAR').addEventListener('click', () => mv.activateAR());
+$('#vPrev').addEventListener('click', () => stepViewer(-1));
+$('#vNext').addEventListener('click', () => stepViewer(1));
+$$('#viewer [data-close]').forEach(b => b.addEventListener('click', closeViewer));
+document.addEventListener('keydown', e => {
+  if (!$('#viewer').classList.contains('open')) return;
+  if (e.key === 'Escape') closeViewer();
+  if (e.key === 'ArrowRight' && e.target.tagName !== 'MODEL-VIEWER') stepViewer(1);
+  if (e.key === 'ArrowLeft' && e.target.tagName !== 'MODEL-VIEWER') stepViewer(-1);
+});
+
+/* QR for desktop → phone handoff (qrcode-generator, loaded on demand) */
+let qrLib;
+async function showQR() {
+  const url = location.origin + location.pathname + '#dish/' + encodeURIComponent(V.id);
+  if (!/^https?:/.test(location.protocol)) return; // file:// links are useless on a phone
+  try {
+    qrLib = qrLib || new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'; s.onload = () => res(window.qrcode); s.onerror = rej; document.head.appendChild(s); });
+    const q = (await qrLib)(0, 'M'); q.addData(url); q.make();
+    $('#vQRCode').innerHTML = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+    $('#vQR').classList.add('show');
+  } catch { /* offline — skip QR */ }
+}
+
+/* public events */
+document.addEventListener('click', e => {
+  const o = e.target.closest('[data-open]'); if (o && !o.closest('.admin')) { e.preventDefault(); openViewer(o.dataset.open); return; }
+  const t = e.target.closest('[data-tab]'); if (t) { currentTab = t.dataset.tab; renderTabs(); renderMenu(); $('#menu').scrollIntoView({ behavior: 'smooth' }); return; }
+  const c = e.target.closest('.chips a'); if (c) { e.preventDefault(); const sec = document.getElementById(c.getAttribute('href').slice(1)); sec && sec.scrollIntoView({ behavior: 'smooth' }); }
+  if (e.target.closest('.nav a') && $('#nav').classList.contains('open')) toggleNav(false);
+});
+document.addEventListener('change', e => { if (e.target.id === 'only3d') { only3d = e.target.checked; renderMenu(); } });
+function toggleNav(open) { $('#nav').classList.toggle('open', open); $('#menuToggle').setAttribute('aria-expanded', open); }
+$('#menuToggle').addEventListener('click', () => toggleNav(!$('#nav').classList.contains('open')));
+// highlight current section chip
+const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) $$('.chips a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id)); }), { rootMargin: '-40% 0px -55% 0px' });
+new MutationObserver(() => $$('.section').forEach(s => io.observe(s))).observe($('#sections'), { childList: true });
+
+/* =========================================================
+   5. ADMIN
+   ========================================================= */
+const A = { draft: null, selected: null, pending: {}, dirty: false, pane: 'dishes' };
+
+function openLogin() {
+  $('#login').classList.add('open'); $('#loginErr').textContent = ''; $('#pw').value = '';
+  $('#loginMode').innerHTML = Store.mode === 'server'
+    ? (Store.adminReady ? 'Connected to the menu server — changes go live for every guest.' : '<b>Admin password not set yet.</b> Add <code>ADMIN_PASSWORD</code> in the Vercel project settings, then redeploy.')
+    : 'Demo mode: changes are saved in <b>this browser only</b>. Default password: <b>wayan</b>. Deploy with the API (Vercel or self-host) to publish for everyone.';
+  setTimeout(() => $('#pw').focus(), 50);
+}
+$('#staffBtn').addEventListener('click', () => (Store.token ? openAdmin() : openLogin()));
+$('#loginCancel').addEventListener('click', () => { $('#login').classList.remove('open'); if (location.hash === '#admin') history.replaceState(null, '', location.pathname); });
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const ok = await Store.login($('#pw').value).catch(() => false);
+  if (!ok) { $('#loginErr').textContent = Store.adminReady ? 'Wrong password.' : 'Admin password isn’t configured on the server yet.'; return; }
+  $('#login').classList.remove('open'); openAdmin();
+});
+
+function openAdmin() {
+  A.draft = clone(MENU); A.pending = {}; A.dirty = false;
+  $('#aMode').textContent = Store.mode === 'server' ? 'Live' : 'Demo · this browser';
+  $('#admin').classList.add('open'); document.body.style.overflow = 'hidden'; document.body.classList.add('admin-open');
+  history.replaceState(null, '', '#admin');
+  $('#aTabFilter').innerHTML = `<option value="">All menus</option>` + MENU.tabs.map(t => `<option value="${esc(t.id)}">${esc(t.label)}</option>`).join('');
+  setPane('dishes');
+  renderAdminList();
+  if (!A.selected || !A.draft.items.find(i => i.id === A.selected)) A.selected = A.draft.items.find(i => i.model)?.id || A.draft.items[0]?.id;
+  if (window.matchMedia('(min-width:821px)').matches) renderEditor(); else $('#aEdit').innerHTML = '';
+}
+async function closeAdmin() {
+  if (A.dirty && !confirm('You have unsaved changes. Leave without saving?')) return;
+  $('#admin').classList.remove('open', 'editing'); document.body.style.overflow = ''; document.body.classList.remove('admin-open');
+  history.replaceState(null, '', location.pathname);
+  revokePending();
+}
+function revokePending() { Object.values(A.pending).forEach(p => p.url && URL.revokeObjectURL(p.url)); A.pending = {}; }
+$('#aView').addEventListener('click', closeAdmin);
+$('#aLogout').addEventListener('click', async () => { await closeAdmin(); if (!$('#admin').classList.contains('open')) { Store.logout(); toast('Signed out'); } });
+$$('[data-apane]').forEach(b => b.addEventListener('click', () => setPane(b.dataset.apane)));
+$('#aSettingsM').addEventListener('click', () => setPane('settings'));
+function setPane(p) {
+  A.pane = p; $$('[data-apane]').forEach(b => b.setAttribute('aria-selected', b.dataset.apane === p));
+  $('#aSettingsM').style.display = window.matchMedia('(max-width:820px)').matches ? '' : 'none';
+  if (p === 'settings') { $('#admin').classList.add('editing'); renderSettings(); } else { renderEditor(); }
+}
+
+function renderAdminList() {
+  const q = $('#aSearch').value.trim().toLowerCase(), tf = $('#aTabFilter').value, f3 = $('#a3dFilter').value;
+  const D = A.draft; let html = '';
+  for (const t of D.tabs) {
+    if (tf && t.id !== tf) continue;
+    for (const s of t.sections) {
+      const its = D.items.filter(i => i.tab === t.id && i.section === s.id)
+        .filter(i => !q || (i.name + ' ' + i.desc).toLowerCase().includes(q))
+        .filter(i => f3 === '' || (f3 === '1') === !!(i.model && i.model.src));
+      if (!its.length) continue;
+      html += `<div class="grp"><h5>${esc(t.label)} · ${esc(s.title)}</h5>` + its.map(i => {
+        const pu = i.model?.poster ? (A.pending[i.id]?.posterUrl || URLS.get(i.model.poster)) : (A.pending[i.id]?.posterUrl || '');
+        return `<button class="li${i.id === A.selected ? ' on' : ''}" data-sel="${esc(i.id)}">
+          <span class="t">${pu ? `<img src="${pu}" alt="">` : 'no 3D'}</span>
+          <span><span class="n">${esc(i.name)}</span>${i.model?.src ? '<span class="badge3d">3D</span>' : ''}${i.available === false ? '<span class="badge3d badge-off">sold out</span>' : ''}<br><span class="s">${esc(fmtPrice(i.price))}${i.desc ? ' · ' + esc(i.desc.slice(0, 38)) + (i.desc.length > 38 ? '…' : '') : ''}</span></span>
+          <span class="ord"><span data-move="-1" data-id="${esc(i.id)}" title="Move up">▲</span><span data-move="1" data-id="${esc(i.id)}" title="Move down">▼</span></span>
+        </button>`; }).join('') + `</div>`;
+    }
+  }
+  $('#aItems').innerHTML = html || `<p class="empty">No dishes match.</p>`;
+  const n = D.items.length, n3 = D.items.filter(i => i.model?.src).length;
+  $('#aStats').textContent = `${n} dishes · ${n3} with 3D`;
+}
+['input', 'change'].forEach(ev => ['#aSearch', '#aTabFilter', '#a3dFilter'].forEach(s => $(s).addEventListener(ev, renderAdminList)));
+$('#aItems').addEventListener('click', e => {
+  const mvb = e.target.closest('[data-move]');
+  if (mvb) { e.stopPropagation(); moveItem(mvb.dataset.id, +mvb.dataset.move); return; }
+  const b = e.target.closest('[data-sel]'); if (!b) return;
+  A.selected = b.dataset.sel; setPane('dishes'); $('#admin').classList.add('editing'); renderAdminList(); renderEditor(); $('#aEdit').scrollTop = 0;
+});
+function moveItem(id, d) {
+  const its = A.draft.items, i = its.findIndex(x => x.id === id), it = its[i];
+  let j = i + d; while (j >= 0 && j < its.length && !(its[j].tab === it.tab && its[j].section === it.section)) j += d;
+  if (j < 0 || j >= its.length) return;
+  [its[i], its[j]] = [its[j], its[i]]; markDirty(); renderAdminList();
+}
+$('#aAdd').addEventListener('click', () => {
+  const tab = $('#aTabFilter').value || A.draft.tabs[0].id, t = A.draft.tabs.find(x => x.id === tab);
+  const it = { id: 'dish-' + uid(), tab, section: t.sections[0]?.id || '', name: 'New dish', desc: '', price: '', extra: '', tags: [], featured: false, hero: false, available: true, model: null };
+  A.draft.items.push(it); A.selected = it.id; markDirty(); setPane('dishes'); $('#admin').classList.add('editing'); renderAdminList(); renderEditor();
+  setTimeout(() => { const n = $('#eName'); n && (n.focus(), n.select()); }, 30);
+});
+function markDirty(v = true) { A.dirty = v; const d = $('#aDirty'); if (d) d.textContent = v ? 'Unsaved changes' : 'All changes saved'; }
+
+function renderEditor() {
+  const it = A.draft.items.find(i => i.id === A.selected);
+  const E = $('#aEdit');
+  if (!it) { E.innerHTML = `<p class="empty">Select a dish on the left, or add a new one.</p>`; return; }
+  const t = A.draft.tabs.find(x => x.id === it.tab) || A.draft.tabs[0];
+  const P = A.pending[it.id] || {};
+  const hasModel = !!(P.glb || it.model?.src);
+  const posterUrl = P.posterUrl || (it.model?.poster ? URLS.get(it.model.poster) : '');
+  E.innerHTML = `
+    <button class="btn btn-line btn-sm backl" id="eBack">← All dishes</button>
+    <h2>${esc(it.name || 'Untitled')}</h2>
+    <p class="sub">${esc(t.label)} · ${esc((t.sections.find(s => s.id === it.section) || {}).title || '')}</p>
+    <div class="cols">
+      <div class="card">
+        <h6>Dish details</h6>
+        <div class="f"><label for="eName">Name</label><input type="text" id="eName" value="${esc(it.name)}"></div>
+        <div class="f"><label for="eDesc">Description</label><textarea id="eDesc" rows="2" placeholder="e.g. indo noodle, black pepper butter, thai basil">${esc(it.desc)}</textarea></div>
+        <div class="f2">
+          <div class="f"><label for="ePrice">Price</label><input type="text" id="ePrice" inputmode="decimal" value="${esc(it.price)}" placeholder="38"></div>
+          <div class="f"><label for="eExtra">Add-on note</label><input type="text" id="eExtra" value="${esc(it.extra)}" placeholder="add egg +3"></div>
+        </div>
+        <div class="f2">
+          <div class="f"><label for="eTab">Menu</label><select id="eTab">${A.draft.tabs.map(x => `<option value="${esc(x.id)}"${x.id === it.tab ? ' selected' : ''}>${esc(x.label)}</option>`).join('')}</select></div>
+          <div class="f"><label for="eSec">Section</label><select id="eSec">${t.sections.map(s => `<option value="${esc(s.id)}"${s.id === it.section ? ' selected' : ''}>${esc(s.title)}</option>`).join('')}<option value="__new">+ New section…</option></select></div>
+        </div>
+        <div class="f"><span class="lbl">Tags</span><div class="checks">${[...new Set([...TAG_OPTIONS, ...(it.tags || [])])].map(tg => `<label><input type="checkbox" data-tag="${esc(tg)}"${(it.tags || []).includes(tg) ? ' checked' : ''}>${esc(tg)}</label>`).join('')}</div></div>
+        <div class="f"><span class="lbl">Visibility</span><div class="checks">
+          <label><input type="checkbox" id="eAvail"${it.available !== false ? ' checked' : ''}>Available today</label>
+          <label><input type="checkbox" id="eFeat"${it.featured ? ' checked' : ''}>Show in “Tonight, in 3D”</label>
+          <label><input type="checkbox" id="eHero"${it.hero ? ' checked' : ''}>Hero dish</label>
+        </div><p class="help">Featured and hero only show when the dish has a 3D model.</p></div>
+        <button class="btn btn-danger btn-sm" id="eDelete">Delete dish</button>
+      </div>
+      <div class="card">
+        <h6>3D model &amp; AR</h6>
+        <div class="prev3d${hasModel ? ' show' : ''}" id="ePrevWrap">
+          <model-viewer id="ePrev" camera-controls touch-action="pan-y" camera-orbit="25deg 62deg 105%" shadow-intensity="1" environment-image="neutral" exposure="1.05" interaction-prompt="none"></model-viewer>
+          <span class="dims" id="eDims"></span>
+        </div>
+        <div class="warn" id="eWarn"></div>
+        <div class="drop" id="eDrop" tabindex="0" role="button" aria-label="Upload GLB model">
+          <strong>${hasModel ? 'Replace 3D model' : 'Upload 3D model'}</strong>
+          <small>Drop a <b>.glb</b> file here or click to choose · max 25&nbsp;MB · real-world scale in metres</small>
+        </div>
+        ${P.glb ? `<p class="help">New file: <b>${esc(P.glb.name)}</b> (${(P.glb.size / 1048576).toFixed(1)} MB) — will upload on save.</p>` : ''}
+        <div class="posterrow">
+          <div class="pv" id="ePosterPv">${posterUrl ? `<img src="${posterUrl}" alt="">` : 'Poster'}</div>
+          <div class="b">
+            <button class="btn btn-line btn-sm" id="eSnap"${hasModel ? '' : ' disabled'}>Use current view as poster</button>
+            <button class="btn btn-line btn-sm" id="ePosterUp">Upload image</button>
+          </div>
+        </div>
+        <p class="help">The poster shows on the menu while the model loads. It’s generated automatically when you upload — rotate the preview and press “Use current view” to re-shoot it.</p>
+        <div class="f" style="margin-top:14px"><label>iPhone AR file (optional)</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-line btn-sm" id="eUsdzUp">${(P.usdz || it.model?.iosSrc) ? 'Replace .usdz' : 'Upload .usdz'}</button><span class="muted" style="font-size:12.5px">${P.usdz ? esc(P.usdz.name) : (it.model?.iosSrc ? 'custom USDZ set' : 'auto-generated from the GLB')}</span></div>
+        </div>
+        <div class="f"><label for="eUrl">…or link a hosted model (https URL to .glb)</label><input type="url" id="eUrl" placeholder="https://cdn.example.com/lobster-noodles.glb" value="${esc(it.model?.src && /^https?:/.test(it.model.src) ? it.model.src : '')}"></div>
+        ${hasModel ? `<button class="btn btn-danger btn-sm" id="eRemove3d">Remove 3D model</button>` : ''}
+      </div>
+    </div>
+    <div class="savebar"><span class="dirty" id="aDirty">${A.dirty ? 'Unsaved changes' : 'All changes saved'}</span><span class="sp"></span>
+      <button class="btn btn-line btn-sm" id="eRevert">Discard</button>
+      <button class="btn btn-teak btn-sm" id="eSave">Save &amp; publish</button></div>`;
+
+  // preview
+  const pv = $('#ePrev');
+  if (hasModel) (async () => { pv.src = P.glbUrl || await urlFor(it.model.src); })();
+  pv.addEventListener('load', () => onPreviewLoad(it));
+
+  const set = (k, v) => { it[k] = v; markDirty(); renderAdminList(); };
+  $('#eName').addEventListener('input', e => { set('name', e.target.value); $('#aEdit h2').textContent = e.target.value || 'Untitled'; });
+  $('#eDesc').addEventListener('input', e => set('desc', e.target.value));
+  $('#ePrice').addEventListener('input', e => set('price', e.target.value.trim()));
+  $('#eExtra').addEventListener('input', e => set('extra', e.target.value));
+  $('#eTab').addEventListener('change', e => { const nt = A.draft.tabs.find(x => x.id === e.target.value); it.tab = nt.id; it.section = nt.sections[0]?.id || ''; markDirty(); renderAdminList(); renderEditor(); });
+  $('#eSec').addEventListener('change', e => {
+    if (e.target.value === '__new') {
+      const name = prompt('New section name (e.g. “Specials”)'); if (!name) { e.target.value = it.section; return; }
+      const id = slug(name) + (t.sections.some(s => s.id === slug(name)) ? '-' + uid().slice(-3) : '');
+      t.sections.push({ id, title: name.trim(), note: '' }); it.section = id; markDirty(); renderAdminList(); renderEditor(); return;
+    }
+    set('section', e.target.value);
+  });
+  $$('[data-tag]', E).forEach(c => c.addEventListener('change', () => { it.tags = $$('[data-tag]:checked', E).map(x => x.dataset.tag); markDirty(); }));
+  $('#eAvail').addEventListener('change', e => set('available', e.target.checked));
+  $('#eFeat').addEventListener('change', e => set('featured', e.target.checked));
+  $('#eHero').addEventListener('change', e => { if (e.target.checked) A.draft.items.forEach(x => x.hero = false); set('hero', e.target.checked); });
+  $('#eDelete').addEventListener('click', () => {
+    if (!confirm(`Delete “${it.name}”? This can’t be undone after saving.`)) return;
+    A.draft.items = A.draft.items.filter(x => x !== it); delete A.pending[it.id];
+    A.selected = A.draft.items[0]?.id; markDirty(); $('#admin').classList.remove('editing'); renderAdminList(); renderEditor();
+  });
+  const drop = $('#eDrop');
+  drop.addEventListener('click', () => $('#fileGlb').click());
+  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#fileGlb').click(); } });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; f && acceptGlb(it, f); });
+  $('#eSnap').addEventListener('click', () => snapPoster(it, true));
+  $('#ePosterUp').addEventListener('click', () => $('#filePoster').click());
+  $('#eUsdzUp').addEventListener('click', () => $('#fileUsdz').click());
+  $('#eUrl').addEventListener('change', e => {
+    const u = e.target.value.trim(); if (!u) return;
+    if (!/^https:\/\//.test(u)) { toast('Use an https:// link'); return; }
+    A.pending[it.id] = { ...(A.pending[it.id] || {}), glb: null, glbUrl: u, linked: u, posterBlob: null, posterUrl: '' };
+    markDirty(); renderEditor();
+  });
+  const rm = $('#eRemove3d'); rm && rm.addEventListener('click', () => {
+    if (!confirm('Remove the 3D model from this dish?')) return;
+    A.pending[it.id] = { remove: true }; it.featured = false; it.hero = false; markDirty(); renderAdminList(); renderEditor();
+    $('#ePrevWrap').classList.remove('show');
+  });
+  $('#eRevert').addEventListener('click', () => { if (!A.dirty || confirm('Discard all unsaved changes?')) { revokePending(); A.draft = clone(MENU); markDirty(false); renderAdminList(); renderEditor(); } });
+  $('#eSave').addEventListener('click', saveAll);
+  const back = $('#eBack'); back && back.addEventListener('click', () => $('#admin').classList.remove('editing'));
+  if (A.pending[it.id]?.remove) $('#ePrevWrap').classList.remove('show');
+}
+
+function onPreviewLoad(it) {
+  const pv = $('#ePrev'); if (!pv) return;
+  const d = pv.getDimensions(), cm = v => Math.round(v * 100);
+  $('#eDims').textContent = `${cm(d.x)} × ${cm(d.y)} × ${cm(d.z)} cm`;
+  const w = $('#eWarn'), maxd = Math.max(d.x, d.y, d.z);
+  if (maxd > 1.2) { w.innerHTML = `<b>This model is ${maxd.toFixed(1)} m wide.</b> AR shows dishes at true size, so it will look huge. The file was probably exported in centimetres — re-export in metres (a plate is about 0.25 m).`; w.classList.add('show'); }
+  else if (maxd < 0.03) { w.innerHTML = `<b>This model is only ${(maxd * 100).toFixed(1)} cm wide.</b> It will look tiny in AR. Check the export scale (metres).`; w.classList.add('show'); }
+  else w.classList.remove('show');
+  const P = A.pending[it.id];
+  if (P && (P.glb || P.linked) && !P.posterBlob) setTimeout(() => snapPoster(it, false), 400);
+}
+
+async function snapPoster(it, manual) {
+  const pv = $('#ePrev'); if (!pv || !pv.loaded) { manual && toast('Model is still loading…'); return; }
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  try {
+    const blob = await pv.toBlob({ mimeType: 'image/webp', qualityArgument: 0.85, idealAspect: false });
+    const P = A.pending[it.id] = A.pending[it.id] || {};
+    P.posterUrl && URL.revokeObjectURL(P.posterUrl);
+    P.posterBlob = blob; P.posterUrl = URL.createObjectURL(blob);
+    $('#ePosterPv').innerHTML = `<img src="${P.posterUrl}" alt="">`;
+    markDirty(); renderAdminList(); manual && toast('Poster updated');
+  } catch (e) { manual && toast('Could not capture poster'); }
+}
+
+async function acceptGlb(it, file) {
+  if (!/\.glb$/i.test(file.name)) { toast('Please choose a .glb file (binary glTF).'); return; }
+  if (file.size > 25 * 1048576) { toast('That file is over 25 MB — compress it first (see README).'); return; }
+  const head = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  if (String.fromCharCode(...head) !== 'glTF') { toast('That file isn’t a valid GLB.'); return; }
+  const P = A.pending[it.id] = { ...(A.pending[it.id] || {}), remove: false, linked: '' };
+  P.glbUrl && P.glb && URL.revokeObjectURL(P.glbUrl);
+  P.glb = file; P.glbUrl = URL.createObjectURL(file); P.posterBlob = null; P.posterUrl = '';
+  markDirty(); renderEditor(); toast('Model loaded — check the preview, then Save');
+}
+$('#fileGlb').addEventListener('change', e => { const f = e.target.files[0]; const it = A.draft.items.find(i => i.id === A.selected); f && it && acceptGlb(it, f); e.target.value = ''; });
+$('#filePoster').addEventListener('change', e => {
+  const f = e.target.files[0]; const it = A.draft.items.find(i => i.id === A.selected); e.target.value = ''; if (!f || !it) return;
+  const P = A.pending[it.id] = A.pending[it.id] || {}; P.posterBlob = f; P.posterUrl = URL.createObjectURL(f);
+  if (!it.model && !P.glb && !P.linked) toast('Poster saved — add a 3D model to show it on the menu');
+  markDirty(); renderEditor(); renderAdminList();
+});
+$('#fileUsdz').addEventListener('change', e => {
+  const f = e.target.files[0]; const it = A.draft.items.find(i => i.id === A.selected); e.target.value = ''; if (!f || !it) return;
+  if (!/\.usdz$/i.test(f.name)) { toast('Please choose a .usdz file'); return; }
+  (A.pending[it.id] = A.pending[it.id] || {}).usdz = f; markDirty(); renderEditor();
+});
+
+async function saveAll() {
+  const btn = $('#eSave'); btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const old = new Map(MENU.items.map(i => [i.id, i]));
+    for (const it of A.draft.items) {
+      const P = A.pending[it.id]; if (!P) continue;
+      const prev = old.get(it.id)?.model || null;
+      if (P.remove) { if (prev) ['src', 'poster', 'iosSrc'].forEach(k => Store.deleteAsset(prev[k])); it.model = null; continue; }
+      it.model = it.model ? { ...it.model } : { src: '', poster: '', iosSrc: '' };
+      const base = slug(it.name) || it.id;
+      if (P.glb) it.model.src = await Store.putAsset(P.glb, base + '.glb');
+      else if (P.linked) it.model.src = P.linked;
+      if (P.posterBlob) it.model.poster = await Store.putAsset(P.posterBlob, base + '-poster.' + ((P.posterBlob.type || '').includes('png') ? 'png' : (P.posterBlob.type || '').includes('jpeg') ? 'jpg' : 'webp'));
+      if (P.usdz) it.model.iosSrc = await Store.putAsset(P.usdz, base + '.usdz');
+      if (!it.model.src) it.model = it.model.poster ? { ...it.model } : null;
+      // clean up replaced local assets
+      if (prev) for (const k of ['src', 'poster', 'iosSrc']) if (prev[k] && prev[k] !== it.model?.[k]) Store.deleteAsset(prev[k]);
+    }
+    // removed dishes → drop their local assets
+    for (const [id, o] of old) if (!A.draft.items.find(i => i.id === id) && o.model) for (const k of ['src', 'poster', 'iosSrc']) Store.deleteAsset(o.model[k]);
+    A.draft.updatedAt = new Date().toISOString();
+    await Store.saveMenu(A.draft);
+    revokePending();
+    MENU = clone(A.draft); A.draft = clone(MENU);
+    markDirty(false); await renderAll(); renderAdminList(); renderEditor();
+    toast(Store.mode === 'server' ? 'Saved — live for all guests' : 'Saved in this browser');
+  } catch (e) {
+    toast(e.message || 'Save failed'); if (/sign in/i.test(e.message)) { Store.logout(); openLogin(); }
+  } finally { const b = $('#eSave'); if (b) { b.disabled = false; b.innerHTML = 'Save &amp; publish'; } }
+}
+
+function renderSettings() {
+  const R = A.draft.restaurant, E = $('#aEdit');
+  E.innerHTML = `
+    <button class="btn btn-line btn-sm backl" id="eBack">← All dishes</button>
+    <h2>Settings</h2><p class="sub">Restaurant details, menus and backups.</p>
+    <div class="cols">
+      <div class="card"><h6>Restaurant</h6>
+        <div class="f2"><div class="f"><label>Name</label><input type="text" data-r="name" value="${esc(R.name)}"></div><div class="f"><label>Location label</label><input type="text" data-r="location" value="${esc(R.location)}"></div></div>
+        <div class="f"><label>Hero text</label><textarea data-r="tagline" rows="3">${esc(R.tagline)}</textarea></div>
+        <div class="f"><label>Address</label><input type="text" data-r="address" value="${esc(R.address)}"></div>
+        <div class="f2"><div class="f"><label>Phone</label><input type="text" data-r="phone" value="${esc(R.phone)}"></div><div class="f"><label>Reservation link</label><input type="url" data-r="reserveUrl" value="${esc(R.reserveUrl)}"></div></div>
+        <div class="f"><label>Hours (one per line, “Label|Time”)</label><textarea data-r="hours" rows="6">${esc(R.hours)}</textarea></div>
+        <div class="f"><label>Menu footnote</label><input type="text" data-r="footnote" value="${esc(R.footnote)}"></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:20px"><h6>Menus</h6>
+          ${A.draft.tabs.map((t, ti) => `<div class="f2" style="margin-bottom:8px"><input type="text" data-tl="${ti}" value="${esc(t.label)}" aria-label="Menu name"><input type="text" data-tn="${ti}" value="${esc(t.note || '')}" placeholder="Note (e.g. hours)" aria-label="Menu note"></div>`).join('')}
+          <button class="btn btn-line btn-sm" id="sAddTab">+ Add menu</button>
+          <p class="help">Sections are created from the dish editor (Section → “New section…”).</p>
+        </div>
+        <div class="card" style="margin-bottom:20px"><h6>Backup</h6>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-line btn-sm" id="sExport">Export backup</button><button class="btn btn-line btn-sm" id="sImport">Import backup</button><button class="btn btn-danger btn-sm" id="sReset">Reset to original menu</button></div>
+          <p class="help">${Store.mode === 'server' ? 'Exports the menu (menu.json). Uploaded models stay in storage and are referenced by URL.' : 'Exports the menu and every uploaded model in one .json file — use it to move content to another browser or to the server.'}</p>
+        </div>
+        ${Store.mode === 'local' ? `<div class="card"><h6>Admin password (demo mode)</h6>
+          <div class="f"><input type="password" id="sPin" placeholder="New password" autocomplete="new-password"></div>
+          <button class="btn btn-line btn-sm" id="sPinSave">Change password</button>
+          <p class="help">Demo mode only protects this browser. For real access control run <code>server.js</code> with <code>ADMIN_PASSWORD</code>.</p></div>` : ''}
+      </div>
+    </div>
+    <div class="savebar"><span class="dirty" id="aDirty">${A.dirty ? 'Unsaved changes' : 'All changes saved'}</span><span class="sp"></span><button class="btn btn-teak btn-sm" id="eSave">Save &amp; publish</button></div>`;
+  $$('[data-r]', E).forEach(i => i.addEventListener('input', () => { R[i.dataset.r] = i.value; markDirty(); }));
+  $$('[data-tl]', E).forEach(i => i.addEventListener('input', () => { A.draft.tabs[+i.dataset.tl].label = i.value; markDirty(); }));
+  $$('[data-tn]', E).forEach(i => i.addEventListener('input', () => { A.draft.tabs[+i.dataset.tn].note = i.value; markDirty(); }));
+  $('#sAddTab').addEventListener('click', () => { const n = prompt('Menu name (e.g. “Lunch”, “Cocktails”)'); if (!n) return; A.draft.tabs.push({ id: slug(n) + '-' + uid().slice(-3), label: n.trim(), note: '', sections: [{ id: 'main-' + uid().slice(-3), title: n.trim(), note: '' }] }); markDirty(); renderSettings(); $('#aTabFilter').innerHTML = `<option value="">All menus</option>` + A.draft.tabs.map(t => `<option value="${esc(t.id)}">${esc(t.label)}</option>`).join(''); });
+  $('#sExport').addEventListener('click', exportBackup);
+  $('#sImport').addEventListener('click', () => $('#fileImport').click());
+  $('#sReset').addEventListener('click', async () => { if (!confirm('Replace the whole menu with the original Wayan menu? Uploaded models will be removed from the menu.')) return; A.draft = clone(SEED); A.pending = {}; markDirty(); await saveAll(); renderSettings(); });
+  const pin = $('#sPinSave'); pin && pin.addEventListener('click', () => { const v = $('#sPin').value; if (v.length < 4) { toast('Use at least 4 characters'); return; } localStorage.setItem('wayan-admin-pin', v); $('#sPin').value = ''; toast('Password changed'); });
+  $('#eSave').addEventListener('click', saveAll);
+  const back = $('#eBack'); back && back.addEventListener('click', () => { $('#admin').classList.remove('editing'); setPane('dishes'); });
+}
+
+async function exportBackup() {
+  const menu = clone(MENU), assets = {};
+  if (Store.mode === 'local') for (const it of menu.items) for (const k of ['src', 'poster', 'iosSrc']) {
+    const ref = it.model?.[k]; if (ref && ref.startsWith('idb:') && !assets[ref]) { const a = await idb.get('assets', ref.slice(4)); if (a) assets[ref] = { name: a.name, type: a.type, b64: await blobToB64(a.blob) }; }
+  }
+  const blob = new Blob([JSON.stringify({ format: 'wayan-3d-menu', exportedAt: new Date().toISOString(), menu, assets })], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wayan-menu-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$('#fileImport').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); const menu = data.menu || data;
+    if (!menu.items || !menu.tabs) throw new Error('Not a Wayan menu backup');
+    const map = {};
+    for (const [ref, a] of Object.entries(data.assets || {})) map[ref] = await Store.putAsset(b64ToBlob(a.b64, a.type), a.name);
+    for (const it of menu.items) if (it.model) for (const k of ['src', 'poster', 'iosSrc']) if (map[it.model[k]]) it.model[k] = map[it.model[k]];
+    await Store.saveMenu(menu); MENU = menu; A.draft = clone(MENU); markDirty(false); await renderAll(); renderAdminList(); renderSettings(); toast('Backup imported');
+  } catch (err) { toast('Import failed: ' + err.message); }
+});
+
+/* =========================================================
+   6. BOOT
+   ========================================================= */
+function route() {
+  const h = decodeURIComponent(location.hash);
+  if (h.startsWith('#dish/')) openViewer(h.slice(6), false);
+  else if (h === '#admin') (Store.token ? openAdmin() : openLogin());
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('beforeunload', e => { if ($('#admin').classList.contains('open') && A.dirty) { e.preventDefault(); e.returnValue = ''; } });
+$('#yr').textContent = new Date().getFullYear();
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { $('#heroMv').removeAttribute('auto-rotate'); mv.removeAttribute('auto-rotate'); }
+
+(async () => {
+  await Store.init();
+  MENU = await Store.loadMenu();
+  // a token from the other mode is meaningless
+  if ((Store.mode === 'local') !== (Store.token === 'local')) Store.token = '';
+  await renderAll();
+  route();
+})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules/
+.vercel/
+.env*
+self-host/data/
+self-host/uploads/
+.DS_Store

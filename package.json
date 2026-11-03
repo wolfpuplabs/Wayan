@@ -1,0 +1,16 @@
+{
+  "name": "wayan-3d-menu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wayan New York — menu with 3D dishes in AR (model-viewer), admin uploads via Vercel Blob.",
+  "type": "module",
+  "scripts": {
+    "selfhost": "node self-host/server.cjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
