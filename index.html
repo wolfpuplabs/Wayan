@@ -1140,7 +1140,7 @@ function onScroll() {
       $$('#stRail button').forEach(b => b.classList.toggle('on', +b.dataset.k === k));
       stSetDish(ST.chapters[k].dish);
     }
-    if (MOTION && narrow.matches) {
+    if (narrow.matches) { // always: opacity is not motion, and without it the cards stack over the model
       // cards keep scrolling, but fade out as they slide up over the model
       const a = $('.st-art').getBoundingClientRect(), limit = a.top + a.height * .78, into = y - $('#story').offsetTop;
       ST.steps.forEach((st, i) => {
