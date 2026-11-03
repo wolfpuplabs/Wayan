@@ -837,10 +837,10 @@ const SEED = {
       { id: 'sweets', title: 'Sweets', note: '' } ] }
   ],
   items: [
-    ['dinner','satays','chickpea-satay','Chickpea','shiitake, sesame seeds',16],
+    ['dinner','satays','chickpea-satay','Chickpea','shiitake, sesame seeds',16,{model:'chickpea-satay',featured:true}],
     ['dinner','satays','scallop-satay','Scallop','chiltepin butter, makrut lime',22],
     ['dinner','satays','shrimp-satay','Shrimp','dabu dabu, lime',22],
-    ['dinner','satays','chicken-satay','Chicken','peanut sauce, lime',18,{model:'chicken-satay',tags:['Popular'],featured:true}],
+    ['dinner','satays','chicken-satay','Chicken','peanut sauce, lime',18,{tags:['Popular']}],
     ['dinner','satays','lamb-satay','Lamb','chili kecap manis, pickled peppers',18],
     ['dinner','satays','beef-satay','Beef','padang sauce, lime',22],
     ['dinner','small','spring-rolls','Vegetable Spring Rolls','green chili emulsion, mint',18,{model:'spring-rolls',featured:true}],
@@ -1679,9 +1679,9 @@ function enhancePixels(img, src, ref, prm) {
   return new ImageData(d, w, h);
 }
 async function photoStats(file) {
-  const bmp = await createImageBitmap(file), cw = bmp.width * .64, chh = bmp.height * .7, sc = Math.min(1, 360 / cw);
+  const bmp = await createImageBitmap(file), cw = bmp.width * .54, chh = bmp.height * .58, sc = Math.min(1, 360 / cw);
   const cv = document.createElement('canvas'); cv.width = Math.round(cw * sc); cv.height = Math.round(chh * sc);
-  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, bmp.width * .18, bmp.height * .15, cw, chh, 0, 0, cv.width, cv.height);
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, bmp.width * .23, bmp.height * .21, cw, chh, 0, 0, cv.width, cv.height); // the dish is usually in the middle
   const [L, A2, B] = toLab(g.getImageData(0, 0, cv.width, cv.height).data);
   return labStats(L, A2, B, i => L[i] > 6 && L[i] < 98 && Math.hypot(A2[i], B[i]) > 14);
 }

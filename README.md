@@ -46,7 +46,7 @@ Menyimpan menu di `self-host/data/` dan upload di `self-host/uploads/`. Pasang d
 - Target < 5 MB. Kompres:
   `npx @gltf-transform/cli optimize in.glb out.glb --compress meshopt --texture-compress webp --texture-size 2048`
 - Model realistis: scan dish asli pakai Polycam / Luma AI / RealityScan → export GLB.
-- Model di `models/` (Chicken Satay, Vegetable Spring Rolls, Corn Fritter, Pandan Custard) hasil generate Tripo, sudah diskalakan ke ukuran asli dan dikompres.
+- Model di `models/` (Chickpea Satay, Vegetable Spring Rolls, Corn Fritter, Pandan Custard) hasil generate Tripo, sudah diskalakan ke ukuran asli, dikompres, dan teksturnya di-enhance dengan foto asli dish.
 
 ## QR di meja
 
