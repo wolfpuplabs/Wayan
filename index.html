@@ -310,19 +310,20 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;t
 .st-heat{display:inline-flex;align-items:center;gap:4px;color:#e7836a;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
 .st-heat svg{width:15px;height:15px}
 @media (max-width:860px){
-  .st-stage .st-art{left:50%;right:auto;top:6%;width:min(84vw,52svh);transform:translateX(-50%)}
+  .st-stage .st-art{left:50%;right:auto;top:3%;width:min(70vw,40svh);transform:translateX(-50%)}
   .st-rail{display:none!important}
-  .st-card{opacity:0}
+  .st-card{opacity:1;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
   .st-skip{bottom:auto;top:14px;right:16px}
   .st-big{display:none}
-  .st-step{align-items:flex-end;padding:0 0 6svh;min-height:105svh}
-  .st-step:first-child{min-height:100svh}
+  .st-step{align-items:flex-start;padding:0 0 12px;min-height:0}
+  .st-step:first-child{min-height:calc(100svh - var(--hdr));align-items:flex-end;padding-bottom:5svh}
+  .st-step:last-child{padding-bottom:10svh}
   .st-card{width:auto;margin:0 14px;padding:22px 20px;border-radius:20px;background:rgba(17,36,23,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(227,197,143,.18)}
-  .st-card h3{font-size:38px;margin:8px 0 12px}
+  .st-card h3{font-size:31px;margin:6px 0 10px}
   .st-card .st-story{font-size:19px}
   .st-card p{font-size:15px;margin-bottom:12px}
-  .st-terms{margin-bottom:14px}
-  .st-terms div:nth-child(n+2){display:none}
+  .st-terms{display:none}
+  .st-card .st-story{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 }
 
 /* ---------- toast ---------- */
@@ -785,7 +786,7 @@ const SEED = {
     id, tab, section, name, desc, price: String(price), extra: o.extra || '', tags: o.tags || [],
     story: (DETAILS[id] || [])[0] || '', heat: (DETAILS[id] || [])[1] || 0, allergens: (DETAILS[id] || [])[2] || [],
     featured: !!o.featured, hero: !!o.hero, available: true,
-    model: o.model ? { src: 'models/' + o.model + '.glb', poster: 'models/' + o.model + '.webp', iosSrc: '' } : null
+    model: o.model ? { src: 'models/' + o.model + '.glb', lite: 'models/' + o.model + '-lite.glb', poster: 'models/' + o.model + '.webp', iosSrc: '' } : null
   }))
 };
 const TAG_OPTIONS = ['Signature', 'Popular', 'New', 'Spicy', 'Vegetarian', 'Vegan', 'Gluten-free', 'Contains nuts', 'Shellfish'];
@@ -1011,6 +1012,7 @@ function itemHTML(it) {
     : `<button class="item det${it.available === false ? ' sold' : ''}" data-open="${esc(it.id)}">${body}</button>`;
 }
 
+const liteSrc = it => it.model.lite || it.model.src; // 1K-texture copy for hero/story; full model for the viewer & AR
 async function renderHero() {
   const list = with3d();
   const it = list.find(i => i.hero) || list.find(i => i.featured) || list[0];
@@ -1020,7 +1022,7 @@ async function renderHero() {
   const mv = $('#heroMv');
   mv.alt = `3D model of ${it.name}`;
   mv.poster = URLS.get(it.model.poster) || '';
-  mv.src = await urlFor(it.model.src);
+  mv.src = await urlFor(liteSrc(it));
   $('#heroName').textContent = it.name; $('#heroPrice').textContent = fmtPrice(it.price);
   $('#heroOpen').dataset.open = it.id;
 }
@@ -1029,6 +1031,34 @@ async function renderHero() {
 const MOTION = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (MOTION) document.documentElement.classList.add('motion');
 const ST = { chapters: [], steps: [], active: -1, dish: null };
+const narrow = matchMedia('(max-width:860px)');
+narrow.addEventListener?.('change', () => { $$('.st-card').forEach(c => c.style.opacity = ''); onScroll(); });
+
+/* warm the story models in the background so chapter switches don't stall */
+let warmed = false;
+function warmModels() {
+  if (warmed || navigator.connection?.saveData) return; warmed = true;
+  const urls = [...new Set(storyDishes().map(liteSrc))];
+  if (!urls.length) return;
+  const pre = document.createElement('model-viewer');
+  pre.setAttribute('loading', 'eager'); pre.setAttribute('aria-hidden', 'true');
+  pre.style.cssText = 'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+  document.body.appendChild(pre);
+  let i = 0;
+  const idle = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 2000 }) : f => setTimeout(f, 300);
+  const next = async () => { if (i < urls.length) pre.src = await urlFor(urls[i++]); };
+  pre.addEventListener('load', () => idle(next));
+  pre.addEventListener('error', () => idle(next));
+  next();
+}
+/* start downloading the full model as soon as a guest reaches for a dish */
+const fetched = new Set();
+function prefetchDish(id) {
+  const it = MENU && MENU.items.find(i => i.id === id); const src = it?.model?.src;
+  if (!src || fetched.has(src) || src.startsWith('idb:') || src.startsWith('embedded:')) return;
+  fetched.add(src); fetch(src, { priority: 'low' }).catch(() => fetched.delete(src));
+}
+['pointerdown', 'mouseover', 'focusin'].forEach(ev => document.addEventListener(ev, e => { const o = e.target.closest?.('[data-open]'); if (o) prefetchDish(o.dataset.open); }, { passive: true }));
 function storyDishes() {
   const list = with3d(); const feat = list.filter(i => i.featured);
   const seen = new Set();
@@ -1078,7 +1108,7 @@ async function stSetDish(it) {
   const smv = $('#stMv'), poster = $('#stPoster'), pu = URLS.get(it.model.poster) || '';
   if (pu) { poster.src = pu; poster.classList.add('show'); }
   $('#stBig').textContent = it.name;
-  const src = await urlFor(it.model.src);
+  const src = await urlFor(liteSrc(it));
   if (ST.dish !== it.id) return;
   smv.alt = `3D model of ${it.name}`;
   if (smv.src === src || smv.getAttribute('src') === src) { poster.classList.remove('show'); return; }
@@ -1102,13 +1132,23 @@ function onScroll() {
     }
     if (!ST.steps.length || $('#story').hidden) return;
     // active chapter = the one crossing the middle of the viewport
-    const mid = vh * .55; let k = 0, prog = 0;
+    const mid = vh * (narrow.matches ? .86 : .55); let k = 0, prog = 0;
     ST.steps.forEach((st, i) => { const r = st.getBoundingClientRect(); if (r.top <= mid) { k = i; prog = Math.min(1, Math.max(0, (mid - r.top) / r.height)); } });
     if (k !== ST.active) {
       ST.active = k;
       ST.steps.forEach((st, i) => st.classList.toggle('on', i === k));
       $$('#stRail button').forEach(b => b.classList.toggle('on', +b.dataset.k === k));
       stSetDish(ST.chapters[k].dish);
+    }
+    if (MOTION && narrow.matches) {
+      // cards keep scrolling, but fade out as they slide up over the model
+      const a = $('.st-art').getBoundingClientRect(), limit = a.top + a.height * .78, into = y - $('#story').offsetTop;
+      ST.steps.forEach((st, i) => {
+        const c = st.querySelector('.st-card'), t = c.getBoundingClientRect().top;
+        let o = (t - limit) / 70; // gone before it really sits on the model
+        if (i === 0) o = 1 - (into - vh * .05) / (vh * .18); // intro stays readable on arrival, then fades as soon as you scroll on
+        c.style.opacity = Math.max(0, Math.min(1, o)).toFixed(3);
+      });
     }
     const c = ST.chapters[k];
     const smv = $('#stMv');
@@ -1503,6 +1543,7 @@ async function saveAll() {
       const base = slug(it.name) || it.id;
       if (P.glb) it.model.src = await Store.putAsset(P.glb, base + '.glb');
       else if (P.linked) it.model.src = P.linked;
+      if (P.glb || P.linked) delete it.model.lite; // the lightweight copy belonged to the old model
       if (P.posterBlob) it.model.poster = await Store.putAsset(P.posterBlob, base + '-poster.' + ((P.posterBlob.type || '').includes('png') ? 'png' : (P.posterBlob.type || '').includes('jpeg') ? 'jpg' : 'webp'));
       if (P.usdz) it.model.iosSrc = await Store.putAsset(P.usdz, base + '.usdz');
       if (!it.model.src) it.model = it.model.poster ? { ...it.model } : null;
@@ -1613,6 +1654,8 @@ if (matchMedia('(prefers-reduced-motion: reduce)').matches) { $('#heroMv').remov
   if ((Store.mode === 'local') !== (Store.token === 'local')) Store.token = '';
   await renderAll();
   route();
+  const settle = () => setTimeout(warmModels, 1200);
+  document.readyState === 'complete' ? settle() : addEventListener('load', settle, { once: true });
 })();
 })();
 </script>
