@@ -56,6 +56,10 @@ Link langsung ke dish: `https://<domain>/#dish/<id>` (mis. `#dish/lobster-noodle
 
 Setelah hero ada section cerita: model 3D menempel di layar, berputar dan zoom mengikuti scroll, lalu berganti per dish (dish yang dicentang *Show in “Tonight, in 3D”*, urut sesuai menu). Teks intro bisa diedit di *Settings → Story intro*. Menu, judul section dan info muncul dengan animasi saat di-scroll; semua animasi mati otomatis untuk pengguna yang memilih *reduce motion*.
 
+## Dark mode
+
+Tema gelap “Nolita after dark” (hijau-hitam, aksen emas). Otomatis mengikuti setting perangkat; tombol bulan/matahari di header untuk ganti manual (pilihan disimpan di browser). Panel admin selalu terang.
+
 ## Detail dish
 
 Setiap dish bisa diklik untuk membuka detail: deskripsi, tingkat pedas, penjelasan istilah (sambal matah, kecap manis, rendang, dll.) dan alergen. Semua bisa diedit di admin (dish editor → *Detail description*, *Heat*, *Allergens*; daftar istilah di *Settings → Glossary*). Tingkat pedas dan alergen awal diperkirakan dari bahan yang tertulis di menu — minta dapur mengecek sebelum dipakai resmi.
