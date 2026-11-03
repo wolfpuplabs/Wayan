@@ -46,7 +46,7 @@ Menyimpan menu di `self-host/data/` dan upload di `self-host/uploads/`. Pasang d
 - Target < 5 MB. Kompres:
   `npx @gltf-transform/cli optimize in.glb out.glb --compress meshopt --texture-compress webp --texture-size 2048`
 - Model realistis: scan dish asli pakai Polycam / Luma AI / RealityScan → export GLB.
-- Model di `models/` (Chicken Satay, Vegetable Spring Rolls, Crispy Pork Ribs, Pandan Custard) hasil generate Tripo, sudah diskalakan ke ukuran asli dan dikompres.
+- Model di `models/` (Chicken Satay, Vegetable Spring Rolls, Corn Fritter, Pandan Custard) hasil generate Tripo, sudah diskalakan ke ukuran asli dan dikompres.
 
 ## QR di meja
 
@@ -63,6 +63,10 @@ Tema gelap “Nolita after dark” (hijau-hitam, aksen emas). Otomatis mengikuti
 ## Detail dish
 
 Setiap dish bisa diklik untuk membuka detail: deskripsi, tingkat pedas, penjelasan istilah (sambal matah, kecap manis, rendang, dll.) dan alergen. Semua bisa diedit di admin (dish editor → *Detail description*, *Heat*, *Allergens*; daftar istilah di *Settings → Glossary*). Tingkat pedas dan alergen awal diperkirakan dari bahan yang tertulis di menu — minta dapur mengecek sebelum dipakai resmi.
+
+## Texture enhancer (admin)
+
+Di editor dish → *3D model & AR* → **Enhance texture with a photo**: upload foto asli dish, lalu warna tekstur model dicocokkan ke foto (hanya area berwarna — mangkuk/piring putih tetap), plus *Clarity*, *Sharpness* dan *Vibrance*. Tahan **Hold to see original** untuk membandingkan. Saat disimpan, model otomatis dioptimasi (tekstur maks 2048 px, kompresi meshopt) dan dibuatkan versi ringan untuk hero/story. Semua diproses di browser (`vendor/gltf-tools.js`, dimuat hanya di admin).
 
 ## Share link
 

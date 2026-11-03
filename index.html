@@ -407,6 +407,17 @@ html{transition:background-color .4s}
 [data-theme="dark"] .sec-head h2 em{color:var(--gold-l)}
 [data-theme="dark"] .toast{background:#efe7d9;color:#13201a}
 [data-theme="dark"] ::selection{background:rgba(227,197,143,.35)}
+.enh{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.enh-grid{display:grid;grid-template-columns:112px minmax(0,1fr);gap:16px;align-items:start}
+.enh-ref{width:112px;height:112px;border-radius:12px;background:#f6f1e8;border:1.5px dashed var(--teak-l);display:grid;place-items:center;overflow:hidden;font-size:12px;color:var(--muted);text-align:center;padding:0;line-height:1.3}
+.enh-ref img{width:100%;height:100%;object-fit:cover}
+.enh-ref span{padding:8px}
+.enh .sl{display:grid;grid-template-columns:84px minmax(0,1fr) 30px;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin:0 0 6px}
+.enh .sl output{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.enh input[type=range]{accent-color:var(--teak);width:100%}
+.enh input[type=range]:disabled{opacity:.4}
+.enh .b{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.enh .stat{font-size:12.5px;color:var(--teak);margin:10px 0 0;min-height:1em}
 /* the staff tools stay light */
 .admin,.login{color-scheme:light;--paper:#fbf8f2;--cream:#f3ece1;--brick:#ebe2d4;--line:#ddd2c1;--teak:#8b5a36;--teak-d:#5f3c22;--teak-l:#b8875c;--jungle:#17301f;--leaf:#5f7f4c;--ink:#1e1a15;--muted:#6c6458;color:var(--ink)}
 [data-theme="dark"] .login{background:#0c1410}
@@ -701,6 +712,7 @@ body.admin-open main, body.admin-open .hdr, body.admin-open footer{display:none}
 <input type="file" id="fileGlb" accept=".glb,model/gltf-binary" hidden>
 <input type="file" id="fileUsdz" accept=".usdz,model/vnd.usdz+zip" hidden>
 <input type="file" id="filePoster" accept="image/*" hidden>
+<input type="file" id="filePhoto" accept="image/*" hidden>
 <input type="file" id="fileImport" accept="application/json,.json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -846,11 +858,11 @@ const SEED = {
     ['dinner','large','lobster-noodles','Lobster Noodles','indo noodle, black pepper butter, thai basil',38,{tags:['Signature','Popular']}],
     ['dinner','large','chicken-lombok','Charred Chicken Lombok','roasted sweet potato, koji, thai basil',30],
     ['dinner','large','roasted-duck','Roasted Duck','calamansi gulai, asian pear, cashew nuts',39],
-    ['dinner','large','crispy-pork-ribs','Crispy Pork Ribs','soy tamarind glaze, sesame seeds, urfa biber',35,{model:'crispy-pork-ribs',featured:true,hero:true}],
+    ['dinner','large','crispy-pork-ribs','Crispy Pork Ribs','soy tamarind glaze, sesame seeds, urfa biber',35],
     ['dinner','signatures','crispy-black-sea-bass','Crispy Black Sea Bass','market choy urap, sambal tomat',78],
     ['dinner','signatures','beef-tenderloin','Caramelized Beef Tenderloin','spring onion sambal, asparagus, pickled chili',48],
     ['dinner','sides','kerupuk','House-made Kerupuk','sambal terasi, makrut powder',10],
-    ['dinner','sides','corn-fritter','Corn Fritter','kecap manis',14,{tags:['Popular']}],
+    ['dinner','sides','corn-fritter','Corn Fritter','kecap manis',14,{model:'corn-fritter',tags:['Popular'],featured:true,hero:true}],
     ['dinner','sides','shishito','Shishito Peppers','sweet soy pepper glaze',14],
     ['dinner','sides','layered-cabbage','Layered Cabbage','garlic-ginger sambal, crispy shiitake',16],
     ['dinner','sides','eggplant-balado','Eggplant Balado','chili sauce, roasted tomatoes',16],
@@ -1499,6 +1511,7 @@ function renderEditor() {
           </div>
         </div>
         <p class="help">The poster shows on the menu while the model loads. It’s generated automatically when you upload — rotate the preview and press “Use current view” to re-shoot it.</p>
+        ${hasModel ? enhHTML(it) : ''}
         <div class="f" style="margin-top:14px"><label>iPhone AR file (optional)</label>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-line btn-sm" id="eUsdzUp">${(P.usdz || it.model?.iosSrc) ? 'Replace .usdz' : 'Upload .usdz'}</button><span class="muted" style="font-size:12.5px">${P.usdz ? esc(P.usdz.name) : (it.model?.iosSrc ? 'custom USDZ set' : 'auto-generated from the GLB')}</span></div>
         </div>
@@ -1556,6 +1569,7 @@ function renderEditor() {
     A.pending[it.id] = { ...(A.pending[it.id] || {}), glb: null, glbUrl: u, linked: u, posterBlob: null, posterUrl: '' };
     markDirty(); renderEditor();
   });
+  if (hasModel) enhBind(it);
   const rm = $('#eRemove3d'); rm && rm.addEventListener('click', () => {
     if (!confirm('Remove the 3D model from this dish?')) return;
     A.pending[it.id] = { remove: true }; it.featured = false; it.hero = false; markDirty(); renderAdminList(); renderEditor();
@@ -1576,7 +1590,226 @@ function onPreviewLoad(it) {
   else if (maxd < 0.03) { w.innerHTML = `<b>This model is only ${(maxd * 100).toFixed(1)} cm wide.</b> It will look tiny in AR. Check the export scale (metres).`; w.classList.add('show'); }
   else w.classList.remove('show');
   const P = A.pending[it.id];
-  if (P && (P.glb || P.linked) && !P.posterBlob) setTimeout(() => snapPoster(it, false), 400);
+  if (ENH[it.id]?.applied) enhShow(it, true);
+  else if (P && (P.glb || P.linked) && !P.posterBlob) setTimeout(() => snapPoster(it, false), 400);
+}
+
+/* =========================================================
+   TEXTURE ENHANCER — match a model's colours and detail to a real photo
+   Runs entirely in the browser. On save the model is also optimized
+   (textures ≤ 2048 px, meshopt) and a lightweight copy is made for the
+   hero and the scroll story.
+   ========================================================= */
+const ENH = {};
+const ENH_DEFAULT = { cm: 70, cl: 35, sh: 40, vb: 10 };
+let TOOLS = null;
+async function loadTools() {
+  if (TOOLS) return TOOLS;
+  const T = await import('./vendor/gltf-tools.js');
+  await Promise.all([T.MeshoptDecoder.ready, T.MeshoptEncoder.ready, T.MeshoptSimplifier.ready]);
+  const io = new T.WebIO().registerExtensions(T.ALL_EXTENSIONS).registerDependencies({ 'meshopt.decoder': T.MeshoptDecoder, 'meshopt.encoder': T.MeshoptEncoder });
+  return (TOOLS = { ...T, io });
+}
+async function modelBytes(it, P) {
+  if (P && P.glb) return new Uint8Array(await P.glb.arrayBuffer());
+  const r = await fetch(await urlFor(it.model.src)); if (!r.ok) throw new Error('Could not read the model');
+  return new Uint8Array(await r.arrayBuffer());
+}
+const decodeImg = (bytes, type) => createImageBitmap(new Blob([bytes], { type }), { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+async function encodeCanvas(cv, keepAlpha) {
+  const toBlob = (t, q) => new Promise(r => cv.toBlob(r, t, q));
+  let b = await toBlob('image/webp', .86);
+  if (!b || b.type !== 'image/webp') b = keepAlpha ? await toBlob('image/png') : await toBlob('image/jpeg', .92);
+  return b;
+}
+function canvasOf(src, w, h) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(src, 0, 0, w, h); return [cv, g]; }
+
+// colour maths: sRGB <-> CIELAB with lookup tables (fast enough for 2048² textures)
+const S2L = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; });
+const L2S = Uint8ClampedArray.from({ length: 4096 }, (_, i) => { const v = i / 4095; return Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)); });
+const fLab = t => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+const iLab = t => { const c = t * t * t; return c > .008856 ? c : (t - 16 / 116) / 7.787; };
+function toLab(d) {
+  const n = d.length >> 2, L = new Float32Array(n), A2 = new Float32Array(n), B = new Float32Array(n);
+  for (let i = 0, p = 0; i < n; i++, p += 4) {
+    const r = S2L[d[p]], g = S2L[d[p + 1]], b = S2L[d[p + 2]];
+    const x = fLab((r * .4124 + g * .3576 + b * .1805) / .95047), y = fLab(r * .2126 + g * .7152 + b * .0722), z = fLab((r * .0193 + g * .1192 + b * .9505) / 1.08883);
+    L[i] = 116 * y - 16; A2[i] = 500 * (x - y); B[i] = 200 * (y - z);
+  }
+  return [L, A2, B];
+}
+function fromLab(L, A2, B, d) {
+  const q = v => L2S[v <= 0 ? 0 : v >= 1 ? 4095 : (v * 4095 + .5) | 0];
+  for (let i = 0, p = 0, n = L.length; i < n; i++, p += 4) {
+    const fy = (L[i] + 16) / 116, x = iLab(fy + A2[i] / 500) * .95047, y = iLab(fy), z = iLab(fy - B[i] / 200) * 1.08883;
+    d[p] = q(x * 3.2406 - y * 1.5372 - z * .4986); d[p + 1] = q(-x * .9689 + y * 1.8758 + z * .0415); d[p + 2] = q(x * .0557 - y * .204 + z * 1.057);
+  }
+}
+function labStats(L, A2, B, keep, step = 1) {
+  const s = [[0, 0], [0, 0], [0, 0]]; let n = 0;
+  for (let i = 0; i < L.length; i += step) { if (!keep(i)) continue; n++; s[0][0] += L[i]; s[0][1] += L[i] * L[i]; s[1][0] += A2[i]; s[1][1] += A2[i] * A2[i]; s[2][0] += B[i]; s[2][1] += B[i] * B[i]; }
+  return n ? s.map(([a, b]) => { const m = a / n; return { m, sd: Math.sqrt(Math.max(1e-6, b / n - m * m)) }; }) : null;
+}
+function boxBlur(src, w, h, r) {
+  const tmp = new Float32Array(src.length), out = new Float32Array(src.length), k = 1 / (2 * r + 1);
+  for (let y = 0; y < h; y++) { const o = y * w; let acc = 0; for (let x = -r; x <= r; x++) acc += src[o + Math.min(w - 1, Math.max(0, x))];
+    for (let x = 0; x < w; x++) { tmp[o + x] = acc * k; acc += src[o + Math.min(w - 1, x + r + 1)] - src[o + Math.max(0, x - r)]; } }
+  for (let x = 0; x < w; x++) { let acc = 0; for (let y = -r; y <= r; y++) acc += tmp[Math.min(h - 1, Math.max(0, y)) * w + x];
+    for (let y = 0; y < h; y++) { out[y * w + x] = acc * k; acc += tmp[Math.min(h - 1, y + r + 1) * w + x] - tmp[Math.max(0, y - r) * w + x]; } }
+  return out;
+}
+function enhancePixels(img, src, ref, prm) {
+  const { width: w, height: h } = img, d = new Uint8ClampedArray(img.data);
+  const [L, A2, B] = toLab(d), ch = [L, A2, B];
+  const k = prm.cm / 100;
+  if (k > 0 && src && ref) {
+    const W = new Float32Array(L.length); // weight by chroma: neutrals (white bowls, plates) keep their colour
+    for (let i = 0; i < L.length; i++) { const c = Math.hypot(A2[i], B[i]); W[i] = k * Math.min(1, Math.max(0, (c - 7) / 16)); }
+    ch.forEach((c, j) => {
+      const ratio = Math.min(1.8, Math.max(.6, ref[j].sd / src[j].sd)), sm = src[j].m, tm = ref[j].m;
+      for (let i = 0; i < c.length; i++) if (W[i]) c[i] += W[i] * ((c[i] - sm) * ratio + tm - c[i]);
+    });
+  }
+  const vb = prm.vb / 100;
+  if (vb) for (let i = 0; i < L.length; i++) { const c = Math.hypot(A2[i], B[i]), f = 1 + vb * Math.max(0, 1 - c / 90); A2[i] *= f; B[i] *= f; }
+  if (prm.cl > 0) { const bl = boxBlur(L, w, h, Math.max(2, Math.round(w / 96))), a = prm.cl / 100 * .9; for (let i = 0; i < L.length; i++) L[i] += a * (L[i] - bl[i]); }
+  if (prm.sh > 0) { const bl = boxBlur(L, w, h, 1), a = prm.sh / 100 * 1.6; for (let i = 0; i < L.length; i++) L[i] += a * (L[i] - bl[i]); }
+  for (let i = 0; i < L.length; i++) L[i] = L[i] < 0 ? 0 : L[i] > 100 ? 100 : L[i];
+  fromLab(L, A2, B, d);
+  return new ImageData(d, w, h);
+}
+async function photoStats(file) {
+  const bmp = await createImageBitmap(file), cw = bmp.width * .64, chh = bmp.height * .7, sc = Math.min(1, 360 / cw);
+  const cv = document.createElement('canvas'); cv.width = Math.round(cw * sc); cv.height = Math.round(chh * sc);
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, bmp.width * .18, bmp.height * .15, cw, chh, 0, 0, cv.width, cv.height);
+  const [L, A2, B] = toLab(g.getImageData(0, 0, cv.width, cv.height).data);
+  return labStats(L, A2, B, i => L[i] > 6 && L[i] < 98 && Math.hypot(A2[i], B[i]) > 14);
+}
+async function enhLoadModel(it) {
+  const E = ENH[it.id]; const P = A.pending[it.id] || {};
+  const key = P.glb ? 'pending:' + P.glb.name + P.glb.size : it.model.src;
+  if (E.key === key && E.texs) return;
+  E.status = 'Reading the model…'; enhStatus(it);
+  const T = await loadTools(), doc = await T.io.readBinary(await modelBytes(it, P));
+  const mats = doc.getRoot().listMaterials(), map = new Map();
+  mats.forEach((m, mi) => { const t = m.getBaseColorTexture(); if (!t) return; if (!map.has(t)) map.set(t, { tex: t, mats: [], alpha: false }); const e = map.get(t); e.mats.push(mi); if (m.getAlphaMode() !== 'OPAQUE') e.alpha = true; });
+  if (!map.size) throw new Error('This model has no colour texture to enhance');
+  E.texs = [];
+  for (const e of map.values()) {
+    const bmp = await decodeImg(e.tex.getImage(), e.tex.getMimeType()), [, g] = canvasOf(bmp, bmp.width, bmp.height);
+    const img = g.getImageData(0, 0, bmp.width, bmp.height), d = img.data, [L, A2, B] = toLab(d);
+    e.orig = img; e.src = labStats(L, A2, B, i => d[i * 4 + 3] > 10 && L[i] > 6 && Math.hypot(A2[i], B[i]) > 14, 3);
+    e.origUrl = URL.createObjectURL(new Blob([e.tex.getImage()], { type: e.tex.getMimeType() }));
+    E.texs.push(e);
+  }
+  E.key = key;
+}
+async function enhRun(it) {
+  const E = ENH[it.id]; if (!E || !E.ref) return;
+  const run = (E.run = (E.run || 0) + 1);
+  try {
+    await enhLoadModel(it);
+    E.status = 'Enhancing…'; enhStatus(it);
+    await new Promise(r => setTimeout(r, 30));
+    for (const e of E.texs) {
+      if (run !== E.run) return;
+      const out = enhancePixels(e.orig, e.src, E.ref, E.prm), cv = document.createElement('canvas');
+      cv.width = out.width; cv.height = out.height; cv.getContext('2d').putImageData(out, 0, 0);
+      const blob = await encodeCanvas(cv, e.alpha);
+      e.outUrl && URL.revokeObjectURL(e.outUrl); e.outBlob = blob; e.outUrl = URL.createObjectURL(blob);
+    }
+    if (run !== E.run) return;
+    E.applied = true;
+    const P = A.pending[it.id] = A.pending[it.id] || {}; P.enhance = true; P.posterBlob = null;
+    await enhShow(it, true);
+    E.status = 'Enhanced — hold “See original” to compare. Saved with the dish.'; enhStatus(it); markDirty();
+    $('#eCmp') && ($('#eCmp').disabled = false); $('#eEnhOff') && ($('#eEnhOff').disabled = false);
+  } catch (err) { E.status = err.message || 'Could not enhance this model'; enhStatus(it); }
+}
+const PV_TEX = new WeakMap(); // preview element → url → model-viewer Texture
+async function enhShow(it, enhanced) {
+  const E = ENH[it.id], pv = $('#ePrev'); if (!E?.texs || !pv?.model) return;
+  if (!PV_TEX.has(pv)) PV_TEX.set(pv, new Map());
+  const cache = PV_TEX.get(pv);
+  for (const e of E.texs) {
+    const url = enhanced && e.outUrl ? e.outUrl : e.origUrl;
+    if (!cache.has(url)) cache.set(url, await pv.createTexture(url, e.tex.getMimeType()));
+    for (const mi of e.mats) pv.model.materials[mi]?.pbrMetallicRoughness?.baseColorTexture?.setTexture(cache.get(url));
+  }
+}
+function enhStatus(it) { const el = $('#eEnhStat'); if (el && A.selected === it.id) el.textContent = ENH[it.id]?.status || ''; }
+function enhHTML(it) {
+  const E = ENH[it.id] || {}, prm = E.prm || ENH_DEFAULT, on = !!E.ref;
+  const sl = (k, label, min = 0, max = 100) => `<label class="sl">${label}<input type="range" data-enh="${k}" min="${min}" max="${max}" value="${prm[k]}"${on ? '' : ' disabled'}><output>${prm[k]}</output></label>`;
+  return `<div class="enh"><h6>Enhance texture with a photo</h6>
+    <div class="enh-grid">
+      <button class="enh-ref" id="eRef" type="button" title="Choose a photo of the real dish">${E.photoUrl ? `<img src="${E.photoUrl}" alt="Reference photo">` : '<span>Add a photo of the real dish</span>'}</button>
+      <div>${sl('cm', 'Color match')}${sl('cl', 'Clarity')}${sl('sh', 'Sharpness')}${sl('vb', 'Vibrance', -50, 50)}</div>
+    </div>
+    <div class="b">
+      <button class="btn btn-line btn-sm" type="button" id="eCmp"${E.applied ? '' : ' disabled'}>Hold to see original</button>
+      <button class="btn btn-line btn-sm" type="button" id="eEnhOff"${E.applied ? '' : ' disabled'}>Remove enhancement</button>
+    </div>
+    <p class="stat" id="eEnhStat">${esc(E.status || '')}</p>
+    <p class="help">Matches the model’s colours to the photo, then brings out texture. Use a well-lit photo with the dish in the middle. When you save, the model is also optimized for phones.</p>
+  </div>`;
+}
+function enhBind(it) {
+  const E = () => (ENH[it.id] = ENH[it.id] || { prm: { ...ENH_DEFAULT } });
+  $('#eRef').addEventListener('click', () => $('#filePhoto').click());
+  let t;
+  $$('[data-enh]').forEach(r => r.addEventListener('input', () => {
+    E().prm[r.dataset.enh] = +r.value; r.nextElementSibling.textContent = r.value;
+    clearTimeout(t); t = setTimeout(() => enhRun(it), 350);
+  }));
+  const cmp = $('#eCmp');
+  const down = e => { e.preventDefault(); enhShow(it, false); }, up = () => ENH[it.id]?.applied && enhShow(it, true);
+  cmp.addEventListener('pointerdown', down); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => cmp.addEventListener(ev, up));
+  $('#eEnhOff').addEventListener('click', async () => {
+    const e = ENH[it.id]; if (!e) return; e.applied = false; e.status = 'Enhancement removed.';
+    const P = A.pending[it.id]; if (P) { P.enhance = false; P.posterBlob = null; }
+    await enhShow(it, false); renderEditor();
+  });
+}
+$('#filePhoto').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; const it = A.draft.items.find(i => i.id === A.selected); if (!f || !it) return;
+  const E = ENH[it.id] = ENH[it.id] || { prm: { ...ENH_DEFAULT } };
+  try {
+    E.photo && URL.revokeObjectURL(E.photoUrl);
+    E.photo = f; E.photoUrl = URL.createObjectURL(f); E.ref = await photoStats(f);
+    renderEditor(); enhRun(it);
+  } catch { toast('Could not read that photo'); }
+});
+
+/* Optimize on save: (enhanced) colour textures, textures ≤ 2048 px, meshopt; plus a light copy (≤ 1024 px, ~½ triangles). */
+async function resizeTextures(doc, max, T) {
+  for (const t of doc.getRoot().listTextures()) {
+    const size = t.getSize(); if (!size || Math.max(...size) <= max) continue;
+    const used = doc.getRoot().listMaterials().some(m => m.getBaseColorTexture() === t && m.getAlphaMode() !== 'OPAQUE');
+    const bmp = await decodeImg(t.getImage(), t.getMimeType()), sc = max / Math.max(bmp.width, bmp.height);
+    const [cv] = canvasOf(bmp, Math.round(bmp.width * sc), Math.round(bmp.height * sc));
+    const b = await encodeCanvas(cv, used); t.setImage(new Uint8Array(await b.arrayBuffer())).setMimeType(b.type);
+  }
+}
+async function buildModel(it, P) {
+  const T = await loadTools(), E = ENH[it.id];
+  const doc = await T.io.readBinary(await modelBytes(it, P));
+  if (P.enhance && E?.applied && E.texs) {
+    const byName = new Map(doc.getRoot().listTextures().map(t => [t.getName() + '|' + t.getImage().byteLength, t]));
+    for (const e of E.texs) {
+      const t = byName.get(e.tex.getName() + '|' + e.tex.getImage().byteLength); if (!t || !e.outBlob) continue;
+      t.setImage(new Uint8Array(await e.outBlob.arrayBuffer())).setMimeType(e.outBlob.type);
+    }
+  }
+  await resizeTextures(doc, 2048, T);
+  await doc.transform(T.dedup(), T.prune(), T.meshopt({ encoder: T.MeshoptEncoder, level: 'medium' }));
+  const full = await T.io.writeBinary(doc);
+  const lite = await T.io.readBinary(full);
+  await resizeTextures(lite, 1024, T);
+  await lite.transform(T.weld(), T.simplify({ simplifier: T.MeshoptSimplifier, ratio: .5, error: .001 }), T.meshopt({ encoder: T.MeshoptEncoder, level: 'medium' }));
+  const liteBytes = await T.io.writeBinary(lite);
+  const name = slug(it.name) || 'dish';
+  return { full: new File([full], name + '.glb', { type: 'model/gltf-binary' }), lite: new File([liteBytes], name + '-lite.glb', { type: 'model/gltf-binary' }) };
 }
 
 async function snapPoster(it, manual) {
@@ -1599,7 +1832,8 @@ async function acceptGlb(it, file) {
   if (String.fromCharCode(...head) !== 'glTF') { toast('That file isn’t a valid GLB.'); return; }
   const P = A.pending[it.id] = { ...(A.pending[it.id] || {}), remove: false, linked: '' };
   P.glbUrl && P.glb && URL.revokeObjectURL(P.glbUrl);
-  P.glb = file; P.glbUrl = URL.createObjectURL(file); P.posterBlob = null; P.posterUrl = '';
+  P.glb = file; P.glbUrl = URL.createObjectURL(file); P.posterBlob = null; P.posterUrl = ''; P.enhance = false;
+  if (ENH[it.id]) { const keep = ENH[it.id]; ENH[it.id] = { photo: keep.photo, photoUrl: keep.photoUrl, ref: keep.ref, prm: keep.prm }; }
   markDirty(); renderEditor(); toast('Model loaded — check the preview, then Save');
 }
 $('#fileGlb').addEventListener('change', e => { const f = e.target.files[0]; const it = A.draft.items.find(i => i.id === A.selected); f && it && acceptGlb(it, f); e.target.value = ''; });
@@ -1622,17 +1856,26 @@ async function saveAll() {
     for (const it of A.draft.items) {
       const P = A.pending[it.id]; if (!P) continue;
       const prev = old.get(it.id)?.model || null;
-      if (P.remove) { if (prev) ['src', 'poster', 'iosSrc'].forEach(k => Store.deleteAsset(prev[k])); it.model = null; continue; }
+      if (P.remove) { if (prev) ['src', 'lite', 'poster', 'iosSrc'].forEach(k => Store.deleteAsset(prev[k])); it.model = null; delete ENH[it.id]; continue; }
       it.model = it.model ? { ...it.model } : { src: '', poster: '', iosSrc: '' };
       const base = slug(it.name) || it.id;
+      if (P.glb || P.enhance) {
+        if (P.enhance && !P.posterBlob && A.selected === it.id) await snapPoster(it, false);
+        btn.textContent = 'Optimizing model…';
+        const out = await buildModel(it, P).catch(e => { console.warn(e); toast('Could not optimize this model — uploading it as is'); return null; });
+        if (out) { P.glb = out.full; P.lite = out.lite; }
+        btn.textContent = 'Uploading…';
+      }
       if (P.glb) it.model.src = await Store.putAsset(P.glb, base + '.glb');
       else if (P.linked) it.model.src = P.linked;
       if (P.glb || P.linked) delete it.model.lite; // the lightweight copy belonged to the old model
+      if (P.lite) it.model.lite = await Store.putAsset(P.lite, base + '-lite.glb');
       if (P.posterBlob) it.model.poster = await Store.putAsset(P.posterBlob, base + '-poster.' + ((P.posterBlob.type || '').includes('png') ? 'png' : (P.posterBlob.type || '').includes('jpeg') ? 'jpg' : 'webp'));
       if (P.usdz) it.model.iosSrc = await Store.putAsset(P.usdz, base + '.usdz');
       if (!it.model.src) it.model = it.model.poster ? { ...it.model } : null;
       // clean up replaced local assets
-      if (prev) for (const k of ['src', 'poster', 'iosSrc']) if (prev[k] && prev[k] !== it.model?.[k]) Store.deleteAsset(prev[k]);
+      if (prev) for (const k of ['src', 'lite', 'poster', 'iosSrc']) if (prev[k] && prev[k] !== it.model?.[k]) Store.deleteAsset(prev[k]);
+      delete ENH[it.id];
     }
     // removed dishes → drop their local assets
     for (const [id, o] of old) if (!A.draft.items.find(i => i.id === id) && o.model) for (const k of ['src', 'poster', 'iosSrc']) Store.deleteAsset(o.model[k]);
