@@ -54,7 +54,7 @@ Link langsung ke dish: `https://<domain>/#dish/<id>` (mis. `#dish/lobster-noodle
 
 ## Share link
 
-`og-image.jpg` (1200×630) dipakai sebagai thumbnail saat link dibagikan (WhatsApp, iMessage, Instagram, Facebook, X). URL gambarnya absolut (`https://wayan-theta.vercel.app/og-image.jpg`) di `<head>` `index.html` — ganti kalau pakai custom domain. Kalau link sudah pernah dibagikan sebelumnya, preview lama bisa ter-cache; refresh lewat https://developers.facebook.com/tools/debug/ (juga dipakai WhatsApp).
+`og-image.jpg` (1200×630) dipakai sebagai thumbnail saat link dibagikan (WhatsApp, iMessage, Instagram, Facebook, X). URL gambarnya absolut (`https://wayan-new-york.vercel.app/og-image.jpg`) di `<head>` `index.html` — ganti kalau pakai custom domain. Kalau link sudah pernah dibagikan sebelumnya, preview lama bisa ter-cache; refresh lewat https://developers.facebook.com/tools/debug/ (juga dipakai WhatsApp).
 
 ## Catatan konten
 
